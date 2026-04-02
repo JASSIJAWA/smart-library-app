@@ -59,6 +59,25 @@ app.use('/api/requests', require('./routes/requestRoutes'));
 app.use('/api/fines', require('./routes/fineRoutes'));
 app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
+// Temporary Cloud Shell Bypass for Seeding Database natively via HTTPS
+app.get('/api/seed-master', async (req, res) => {
+    try {
+        const SuperAdmin = require('./models/SuperAdmin');
+        const adminExists = await SuperAdmin.findOne({ email: 'admin@smartlibrary.com' });
+        if (adminExists) {
+            return res.send('<h1>Super Admin already exists!</h1><p>Proceed to <a href="/login-superadmin.html">Login</a> with admin@smartlibrary.com and password123</p>');
+        }
+        await SuperAdmin.create({
+            email: 'admin@smartlibrary.com',
+            password: 'password123',
+            isActive: true
+        });
+        res.send('<h1>SUCCESS! MASTER SUPER ADMIN CREATED</h1><p>Email: <b>admin@smartlibrary.com</b></p><p>Password: <b>password123</b></p><br><p>Proceed to <a href="/login-superadmin.html">Login</a>.</p>');
+    } catch (err) {
+        res.status(500).send('Error seeding database: ' + err.message);
+    }
+});
+
 // Serve Frontend Static Files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
