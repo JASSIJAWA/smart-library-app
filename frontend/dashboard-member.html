@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Member Dashboard | Smart Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js"></script>
+</head>
+
+<body>
+    <!-- Animated Orbs -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <nav>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text navbar-brand-text">Smart Library</h2>
+            <span
+                style="font-size: 0.8rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Member</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <!-- Collapsible Search Bar -->
+            <div class="nav-search-container">
+                <input type="text" id="navSearchInput" class="nav-search-input" placeholder="Search books..."
+                    oninput="debounceSearch()">
+                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="theme-btn" title="Search Library">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="pointer-events: none;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn"
+                title="Toggle Light/Dark Theme"></button>
+            <span id="userName" style="font-weight: 500; color: var(--text-main);">User</span>
+            <a href="#" id="logoutBtn" class="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Section Toggles -->
+        <div class="tab-container">
+            <button class="btn btn-primary active" id="btn-booksSection" onclick="showSection('booksSection')">Browse
+                Books</button>
+            <button class="btn btn-primary" id="btn-requestsSection" onclick="showSection('requestsSection')">My
+                Requests</button>
+        </div>
+
+        <!-- Available Books Section -->
+        <div id="booksSection">
+            <!-- Available Books Header & View Toggle -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                <h4 style="color: var(--primary); margin: 0;">Explore Collection</h4>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div id="bookCountBadge"
+                        style="background: var(--primary-glow); color: var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(0, 229, 255, 0.2);">
+                        Loading...
+                    </div>
+                    <div class="view-toggles"
+                        style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.1); padding: 0.3rem; border-radius: 8px;">
+                        <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active"
+                            title="Grid View"
+                            style="background: var(--card-bg); border: none; color: var(--primary); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <rect x="3" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="3" width="7" height="7"></rect>
+                                <rect x="14" y="14" width="7" height="7"></rect>
+                                <rect x="3" y="14" width="7" height="7"></rect>
+                            </svg>
+                        </button>
+                        <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn"
+                            title="List View"
+                            style="background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <line x1="8" y1="6" x2="21" y2="6"></line>
+                                <line x1="8" y1="12" x2="21" y2="12"></line>
+                                <line x1="8" y1="18" x2="21" y2="18"></line>
+                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div id="booksGrid" class="book-grid">
+                    <!-- Books injected dynamically -->
+                </div>
+            </div>
+        </div>
+
+        <!-- My Requests Section -->
+        <div id="requestsSection" class="hidden">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">My Request History</h3>
+            <div class="glass-panel" style="padding: 2rem;">
+                <div class="table-container">
+                    <table id="requestsTable">
+                        <thead>
+                            <tr>
+                                <th>Book Title</th>
+                                <th>Author</th>
+                                <th>Status</th>
+                                <th>OTP Code</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Fine</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Requests loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal Custom Modal -->
+    <div id="customModal" class="modal hidden">
+        <div class="modal-content glass-panel"
+            style="max-width: 450px; width: 90%; position: relative; padding: 2.5rem; text-align: center; border-radius: 20px;">
+            <h3 id="customModalTitle" style="margin-bottom: 1rem; font-size: 1.6rem; color: var(--primary);">
+                Notification</h3>
+            <p id="customModalMessage"
+                style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.5;"></p>
+
+            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
+                <input type="number" id="customModalInput"
+                    style="width: 100%; text-align: center; font-size: 1.1rem; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main);">
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                <button id="customModalCancelBtn" class="btn hidden"
+                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
+                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/member.js"></script>
+    <script>
+        // Tab UI Enhancement
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalShowSection = window.showSection;
+            if (typeof originalShowSection === 'function') {
+                window.showSection = function (sectionId) {
+                    originalShowSection(sectionId);
+                    document.querySelectorAll('.tab-container .btn').forEach(btn => btn.classList.remove('active'));
+                    const activeBtn = document.getElementById('btn-' + sectionId);
+                    if (activeBtn) activeBtn.classList.add('active');
+                };
+            }
+        });
+    </script>
+</body>
+
+</html>

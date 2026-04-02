@@ -1,0 +1,67 @@
+[
+  {
+    "_id": "699c587d479e4f56a100bf0a",
+    "tenantId": "699c53a1c3cc832206e2cbb1",
+    "title": "The Power of Your Subconcious Mind",
+    "author": " Joseph Murphy",
+    "category": "SELF HELP",
+    "stock": 4,
+    "isbn": "9788172345662",
+    "imageUrl": "http://books.google.com/books/content?id=jXuPrgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+    "createdAt": "2026-02-23T13:39:09.739Z",
+    "updatedAt": "2026-02-23T13:39:09.739Z",
+    "__v": 0
+  },
+  {
+    "_id": "699c58a8479e4f56a100bf10",
+    "tenantId": "699c53a1c3cc832206e2cbb1",
+    "title": "Ikigai",
+    "author": "Héctor García",
+    "category": "SELF HELP",
+    "stock": 5,
+    "isbn": "9781786330895",
+    "imageUrl": "http://books.google.com/books/content?id=U2gtMQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+    "createdAt": "2026-02-23T13:39:52.619Z",
+    "updatedAt": "2026-02-23T13:39:52.619Z",
+    "__v": 0
+  },
+  {
+    "_id": "699c5b3b479e4f56a100c054",
+    "tenantId": "699c53a1c3cc832206e2cbb1",
+    "title": "The Psychology of Money",
+    "author": "MORGAN. HOUSEL",
+    "category": "Psychology",
+    "stock": 6,
+    "isbn": "9789390166268",
+    "imageUrl": "http://books.google.com/books/content?id=zO8AzgEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+    "createdAt": "2026-02-23T13:50:51.700Z",
+    "updatedAt": "2026-02-23T14:18:21.300Z",
+    "__v": 0
+  },
+  {
+    "_id": "699c5c7a479e4f56a100c063",
+    "tenantId": "699c53a1c3cc832206e2cbb1",
+    "title": "The Courage to Be Disliked",
+    "author": "ICHIRO. KOGA KISHIMI (FUMITAKE.)",
+    "category": "Philosophy",
+    "stock": 5,
+    "isbn": "9781760630720",
+    "imageUrl": "http://books.google.com/books/content?id=cOQwswEACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+    "createdAt": "2026-02-23T13:56:10.326Z",
+    "updatedAt": "2026-02-23T13:56:10.326Z",
+    "__v": 0
+  },
+  {
+    "_id": "699c5d4d479e4f56a100c072",
+    "tenantId": "699c53a1c3cc832206e2cbb1",
+    "title": "Atomic Habits",
+    "author": "James Clear",
+    "category": "Education",
+    "stock": 5,
+    "isbn": "9781847941831",
+    "imageUrl": "http://books.google.com/books/content?id=GuAUMQAACAAJ&printsec=frontcover&img=1&zoom=1&source=gbs_api",
+    "createdAt": "2026-02-23T13:59:41.893Z",
+    "updatedAt": "2026-02-23T13:59:41.893Z",
+    "__v": 0
+  }
+]

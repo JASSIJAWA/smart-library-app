@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Library System</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js"></script>
+</head>
+
+<body style="justify-content: center; align-items: center;">
+    <!-- Animated Background Orbs -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div style="position: absolute; top: 1.5rem; right: 2rem; z-index: 100;">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
+    </div>
+
+    <div class="container" style="width: 100%; max-width: 420px; position: relative; z-index: 10; margin: 2rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 class="gradient-text navbar-brand-text" style="font-size: 2.5rem; margin-bottom: 0.2rem;">Smart Library
+            </h1>
+            <p style="color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1.5px; text-transform: uppercase;">
+                Premium Book Management</p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem;">Welcome Back</h2>
+            <div class="form-group">
+                <label>Institution Code (Local Testing)</label>
+                <input type="text" id="loginSubdomain" placeholder="e.g. iilm (leave blank for default)">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="loginEmail" placeholder="Enter your email" required>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-container">
+                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login to
+                Account</button>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+                New to Smart Library? <a href="#" id="showRegister" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s; padding-left: 0.3rem;">Register Now</a>
+            </p>
+        </form>
+
+
+        <!-- Register Form (Hidden) -->
+        <form id="registerForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem;">Create Account</h2>
+            <div class="form-group">
+                <label>Institution Code (Local Testing)</label>
+                <input type="text" id="regSubdomain" placeholder="e.g. iilm (leave blank for default)">
+            </div>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="regName" placeholder="John Doe" required>
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="regEmail" placeholder="john@example.com" required>
+            </div>
+            <div class="form-group">
+                <label>Account Role</label>
+                <select id="regRole" required>
+                    <option value="Member">Member</option>
+                    <option value="Librarian">Librarian (Admin)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <div class="password-container">
+                    <input type="password" id="regPassword" placeholder="Create a strong password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
+                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign Up</button>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+                Already have an account? <a href="#" id="showLogin"
+                    style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s; padding-left: 0.3rem;">Login
+                    Here</a>
+            </p>
+            </p>
+        </form>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        function togglePassword(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                button.classList.add('is-open'); // Eyelid opens
+            } else {
+                input.type = 'password';
+                button.classList.remove('is-open'); // Eyelid closes
+            }
+        }
+    </script>
+</body>
+
+</html>

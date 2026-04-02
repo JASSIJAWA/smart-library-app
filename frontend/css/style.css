@@ -1,0 +1,983 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --bg-dark: #09090e;
+    --bg-gradient: radial-gradient(circle at top right, #1a1a2e, #09090e 70%);
+    --card-bg: rgba(255, 255, 255, 0.03);
+    --card-border: rgba(255, 255, 255, 0.08);
+    --nav-bg: rgba(9, 9, 14, 0.8);
+
+    --primary: #00e5ff;
+    --primary-glow: rgba(0, 229, 255, 0.4);
+    --secondary: #b000ff;
+    --secondary-glow: rgba(176, 0, 255, 0.4);
+
+    --success: #00ff9d;
+    --danger: #ff0055;
+    --warning: #ffcc00;
+
+    --text-main: #f0f0f5;
+    --text-muted: #9ba1a6;
+
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* Light Theme Overrides */
+[data-theme="light"] {
+    /* Bright, airy backgrounds */
+    --bg-dark: #f4f5f9;
+    --bg-gradient: radial-gradient(circle at top right, #ffffff, #f4f5f9 70%);
+
+    /* Matte glass panels for light mode */
+    --card-bg: rgba(255, 255, 255, 0.85);
+    --card-border: rgba(0, 0, 0, 0.08);
+    --nav-bg: rgba(255, 255, 255, 0.85);
+
+    /* Slightly darkened accents for better contrast on white backgrounds */
+    --primary: #00addc;
+    --primary-glow: rgba(0, 173, 220, 0.2);
+    --secondary: #9000d6;
+    --secondary-glow: rgba(144, 0, 214, 0.2);
+
+    --success: #00bf75;
+    --danger: #e6004c;
+    --warning: #dbad00;
+
+    /* Slate text for readability */
+    --text-main: #2a2c35;
+    --text-muted: #6b7280;
+
+    /* Softer, scattered shadow */
+    --glass-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.08);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Outfit', sans-serif;
+}
+
+body {
+    background: var(--bg-dark);
+    background-image: var(--bg-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Global Utility Classes */
+.hidden {
+    display: none !important;
+}
+
+/* Background animated orbs for wow effect */
+.bg-orbs {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.4;
+    animation: float 20s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+    top: -10%;
+    left: -10%;
+    width: 40vw;
+    height: 40vw;
+    background: radial-gradient(circle, var(--secondary), transparent 60%);
+}
+
+.orb-2 {
+    bottom: -10%;
+    right: -10%;
+    width: 50vw;
+    height: 50vw;
+    background: radial-gradient(circle, var(--primary), transparent 60%);
+    animation-delay: -10s;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    100% {
+        transform: translate(10vw, 10vh) scale(1.2);
+    }
+}
+
+
+
+/* Glassmorphism */
+.glass-panel {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: var(--glass-shadow);
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2rem;
+    width: 100%;
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4 {
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.02em;
+}
+
+.gradient-text {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+}
+
+/* Buttons */
+.btn {
+    padding: 0.8rem 1.8rem;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--secondary), var(--primary));
+    z-index: -1;
+    transition: opacity 0.3s ease;
+    opacity: 0;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 8px 30px rgba(0, 229, 255, 0.8), 0 0 15px rgba(176, 0, 255, 0.6);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary:hover::before {
+    opacity: 1;
+}
+
+.btn-danger {
+    background: rgba(255, 0, 85, 0.1);
+    color: var(--danger);
+    border: 1px solid rgba(255, 0, 85, 0.3);
+}
+
+.btn-danger:hover {
+    background: var(--danger);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(255, 0, 85, 0.4);
+    transform: translateY(-2px);
+}
+
+/* Theme Toggle Button */
+.theme-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: var(--transition);
+}
+
+.theme-btn:hover {
+    background: rgba(128, 128, 128, 0.15);
+    transform: rotate(15deg);
+}
+
+/* Collapsible Search in Navbar */
+.nav-search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.nav-search-input {
+    width: 0;
+    opacity: 0;
+    padding: 0;
+    border: none;
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 20px;
+    font-size: 0.9rem;
+    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    outline: none;
+    position: absolute;
+    right: 100%;
+    margin-right: -2rem;
+    /* Overlap button slightly initially */
+    box-shadow: var(--glass-shadow);
+    pointer-events: none;
+}
+
+.nav-search-input.active {
+    width: 250px;
+    opacity: 1;
+    padding: 0.5rem 1rem 0.5rem 2.5rem;
+    margin-right: 0.5rem;
+    border: 1px solid var(--card-border);
+    pointer-events: auto;
+}
+
+@media (max-width: 768px) {
+    .nav-search-input.active {
+        width: 180px;
+    }
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+input,
+select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--card-border);
+    border-radius: 10px;
+    color: var(--text-main);
+    font-size: 1rem;
+    transition: var(--transition);
+    color-scheme: dark;
+    /* Helps native UI elements look better in dark mode */
+}
+
+/* Style default number input spinners for dark theme */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    opacity: 0.5;
+    filter: invert(0.8) hue-rotate(180deg);
+    cursor: pointer;
+    height: 100%;
+    transition: var(--transition);
+}
+
+input[type="number"]::-webkit-inner-spin-button:hover,
+input[type="number"]::-webkit-outer-spin-button:hover {
+    opacity: 1;
+    filter: invert(1) hue-rotate(180deg) drop-shadow(0 0 5px var(--primary-glow));
+}
+
+[data-theme="light"] input,
+[data-theme="light"] select {
+    color-scheme: light;
+}
+
+[data-theme="light"] input[type="number"]::-webkit-inner-spin-button,
+[data-theme="light"] input[type="number"]::-webkit-outer-spin-button {
+    filter: none;
+}
+
+input:hover,
+select:hover {
+    border-color: var(--primary);
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.5);
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    background: rgba(0, 0, 0, 0.4);
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.6);
+}
+
+input:focus+label,
+input:hover+label {
+    color: var(--primary);
+    text-shadow: 0 0 8px rgba(0, 229, 255, 0.5);
+}
+
+option {
+    background: var(--bg-dark);
+    color: var(--text-main);
+}
+
+/* Nav */
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 5%;
+    background: var(--nav-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.logout-link {
+    color: var(--danger);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    transition: var(--transition);
+    background: rgba(255, 0, 85, 0.05);
+}
+
+.logout-link:hover {
+    background: rgba(255, 0, 85, 0.15);
+    color: #ff3377;
+}
+
+/* Tables */
+.table-container {
+    overflow-x: auto;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 1.2rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--card-border);
+}
+
+th {
+    color: var(--primary);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+tr {
+    transition: var(--transition);
+}
+
+tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+tr:last-child td {
+    border-bottom: none;
+}
+
+/* Utilities */
+.hidden {
+    display: none !important;
+}
+
+/* Status Colors */
+.status-Requested { color: var(--primary); font-weight: 600; }
+.status-Approved { color: var(--success); font-weight: 600; }
+.status-Issued { color: var(--warning); font-weight: 600; }
+.status-Returned { color: var(--success); opacity: 0.8; }
+.status-Overdue { color: var(--danger); font-weight: 600; }
+.status-Waitlisted { color: #9c27b0; font-weight: 600; text-shadow: 0 0 5px rgba(156, 39, 176, 0.4); }
+
+/* Stats Overview */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+}
+
+.stat-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+    text-align: center;
+    padding: 2.5rem 2rem;
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.stat-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: linear-gradient(135deg, transparent, rgba(255, 255, 255, 0.03));
+    pointer-events: none;
+}
+
+.stat-value {
+    font-size: 3.5rem;
+    background: linear-gradient(135deg, var(--primary), var(--success));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    line-height: 1;
+}
+
+.stat-label {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+/* Status Colors */
+.status-Requested {
+    color: var(--warning);
+}
+
+.status-Approved {
+    color: var(--primary);
+}
+
+.status-Issued {
+    color: var(--success);
+}
+
+.status-Returned {
+    color: var(--text-muted);
+}
+
+.status-Rejected {
+    color: var(--danger);
+    opacity: 0.8;
+}
+
+.status-Overdue {
+    color: var(--danger);
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(255, 0, 85, 0.5);
+}
+
+/* Section Toggles */
+.tab-container {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    width: fit-content;
+}
+
+.tab-container .btn {
+    background: transparent;
+    color: var(--text-muted);
+    box-shadow: none;
+    border: 1px solid transparent;
+    padding: 0.6rem 1.5rem;
+}
+
+.tab-container .btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-main);
+    transform: none;
+}
+
+.tab-container .btn.active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 4px 15px var(--primary-glow);
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-dark);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Book Grid & List View (Member Dashboard) */
+.book-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 2rem;
+}
+
+.book-grid.list-view {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.book-grid.list-view .book-card {
+    flex-direction: row;
+    align-items: center;
+    gap: 2rem;
+    padding: 1.5rem;
+}
+
+.book-grid.list-view .book-cover {
+    width: 120px;
+    height: 180px;
+    margin-bottom: 0;
+}
+
+@media (max-width: 600px) {
+    .book-grid.list-view .book-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .book-grid.list-view .book-cover {
+        width: 100%;
+        height: 220px;
+    }
+}
+
+.book-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.2));
+    border: 1px solid var(--card-border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    gap: 1.5rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.book-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--primary), var(--secondary));
+    opacity: 0;
+    transition: var(--transition);
+}
+
+.book-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(0, 229, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.book-card:hover::before {
+    opacity: 1;
+}
+
+.book-cover {
+    width: 100%;
+    height: 220px;
+    object-fit: contain;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+    transition: var(--transition);
+}
+
+.book-card:hover .book-cover {
+    transform: scale(1.02);
+}
+
+.placeholder-cover {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.3));
+    border: 1px dashed var(--card-border);
+}
+
+.book-info-wrapper {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.book-card h4 {
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.book-card .author {
+    color: var(--primary);
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.book-card .category-badge {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    display: inline-block;
+    margin-bottom: 1rem;
+}
+
+.book-card .btn-request {
+    margin-top: auto;
+    width: 100%;
+}
+
+/* Password Toggle Enhancements */
+.password-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.password-container input {
+    padding-right: 45px;
+    /* Space for the toggle icon */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent !important;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 0;
+    line-height: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: var(--transition);
+}
+
+.password-toggle svg {
+    stroke: var(--text-muted);
+    transition: var(--transition);
+}
+
+.password-toggle:hover {
+    color: var(--primary);
+    transform: translateY(-50%) scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(0, 229, 255, 0.5));
+}
+
+.password-toggle:hover svg {
+    stroke: var(--primary);
+}
+
+/* Realistic SVG Animated Eye */
+.smooth-eye {
+    width: 22px;
+    height: 22px;
+    display: inline-block;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    stroke: var(--text-muted);
+}
+
+.password-toggle:hover .smooth-eye {
+    stroke: var(--primary);
+    filter: drop-shadow(0 0 6px rgba(0, 229, 255, 0.5));
+}
+
+.password-toggle:hover .smooth-eye .eye-pupil {
+    fill: var(--primary);
+}
+
+.eye-shape {
+    /* DEFAULT state = CLOSED */
+    d: path("M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z");
+    transition: d 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.is-open .eye-shape {
+    /* OPEN state */
+    d: path("M 2 12 C 7 4, 17 4, 22 12 C 17 20, 7 20, 2 12 Z");
+}
+
+.eye-pupil {
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: opacity 0.2s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.is-open .eye-pupil {
+    opacity: 1;
+    transform: scaleY(1);
+    transition: opacity 0.4s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lash {
+    stroke-dasharray: 10;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition: stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+}
+
+.is-open .lash {
+    stroke-dashoffset: 10;
+    opacity: 0;
+    transition: stroke-dashoffset 0.2s, opacity 0.2s;
+}
+
+/* =========================================
+   Modal Popup Styles
+   ========================================= */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.modal-content {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    padding: 2.5rem;
+    width: 90%;
+    position: relative;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(0) scale(1);
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal.hidden .modal-content {
+    transform: translateY(-50px) scale(0.95);
+}
+
+/* =========================================
+   Mobile Responsiveness (Max width: 768px)
+   ========================================= */
+@media (max-width: 768px) {
+
+    /* Navigation Bar Adjustments */
+    nav {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 1rem;
+        gap: 1rem;
+    }
+
+    nav h2 {
+        font-size: 1.3rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    /* Move search and toggles to their own row on mobile */
+    nav>div {
+        width: 100%;
+        justify-content: flex-end;
+        /* Align items to the right */
+        gap: 0.8rem !important;
+        /* Tighter gap */
+        position: relative;
+        /* Required for absolute child positioning */
+    }
+
+    /* Force the search container to shrink if needed */
+    .nav-search-container {
+        position: static;
+        /* Let the expanded input position relative to nav>div */
+    }
+
+    .nav-search-input.active {
+        /* Drop down as a full-width row below the navigation buttons */
+        position: absolute;
+        top: 100%;
+        left: 5%;
+        right: 5%;
+        width: 90%;
+        max-width: none;
+        margin-right: 0;
+        margin-top: 12px;
+        z-index: 200;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+        background: var(--bg-dark);
+        border: 1px solid var(--primary);
+        padding: 0.8rem 1rem;
+    }
+
+    /* Ensure long usernames truncate cleanly on very narrow screens */
+    #userName {
+        max-width: 80px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Main Container Padding */
+    .container {
+        padding: 1rem;
+    }
+
+    /* Book Grid Adjustments */
+    .book-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        /* Force 1 column on mobile */
+        gap: 1.5rem;
+    }
+
+    .book-card {
+        padding: 1rem;
+    }
+
+    .book-cover {
+        height: 180px;
+        /* Slightly smaller covers */
+    }
+
+    /* Books Header & Toggle */
+    #booksSection>div:first-child {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 1rem;
+    }
+
+    .view-toggles {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Stats Dashboard Adjustments */
+    .card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Modal Adjustments */
+    .modal-content {
+        padding: 1.5rem;
+        margin: 5% auto;
+        width: 95%;
+    }
+
+    /* Make buttons full width on mobile modals */
+    .modal-content .btn {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+}

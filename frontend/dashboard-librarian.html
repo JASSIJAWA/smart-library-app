@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Librarian Dashboard | Smart Library</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Scripts will be moved to the bottom -->
+</head>
+
+<body>
+    <!-- Animated Orbs -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+    </div>
+
+    <nav>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text navbar-brand-text">Smart Library</h2>
+            <span
+                style="font-size: 0.8rem; color: var(--secondary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Librarian</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <!-- Collapsible Search Bar -->
+            <div class="nav-search-container">
+                <input type="text" id="navSearchInput" class="nav-search-input" placeholder="Search books..."
+                    oninput="debounceSearch()">
+                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="theme-btn" title="Search Library">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                        style="pointer-events: none;">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <button id="configModalBtn" onclick="document.getElementById('configModal').classList.remove('hidden'); fetchCurrentConfig();" class="theme-btn" title="Tenant Configuration">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                </svg>
+            </button>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
+            <span id="userName" style="font-weight: 500; color: var(--text-main);">Librarian</span>
+            <a href="#" id="logoutBtn" class="logout-link">Logout</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Section Toggles -->
+        <div class="tab-container">
+            <button class="btn btn-primary active" id="btn-overviewSection"
+                onclick="showSection('overviewSection')">Overview</button>
+            <button class="btn btn-primary" id="btn-booksSection" onclick="showSection('booksSection')">Manage
+                Books</button>
+            <button class="btn btn-primary" id="btn-categoriesSection"
+                onclick="showSection('categoriesSection')">Categories</button>
+            <button class="btn btn-primary" id="btn-requestsSection"
+                onclick="showSection('requestsSection')">Requests</button>
+        </div>
+
+        <!-- Overview Section -->
+        <div id="overviewSection">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Dashboard Overview</h3>
+            <div class="card-grid">
+                <div class="stat-card" style="cursor: pointer; transition: transform 0.2s;"
+                    onclick="focusBookDirectory()" onmouseover="this.style.transform='translateY(-5px)'"
+                    onmouseout="this.style.transform='translateY(0)'">
+                    <div id="totalBooks" class="stat-value">0</div>
+                    <div class="stat-label">Total Books <span style="font-size: 0.7rem; opacity: 0.7;">(Click to
+                            view)</span></div>
+                </div>
+                <div class="stat-card">
+                    <div id="totalIssued" class="stat-value">0</div>
+                    <div class="stat-label">Issued Books</div>
+                </div>
+                <div class="stat-card">
+                    <div id="totalOverdue" class="stat-value">0</div>
+                    <div class="stat-label">Overdue Books</div>
+                </div>
+                <div class="stat-card">
+                    <div id="totalFine" class="stat-value">$0</div>
+                    <div class="stat-label">Total Fines</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Books Section -->
+        <div id="booksSection" class="hidden">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Manage Books</h3>
+            <div class="glass-panel" style="margin-bottom: 2rem; padding: 2rem;">
+                <h4 style="color: var(--primary); margin-bottom: 1.5rem;">Add New Book</h4>
+
+                <!-- Smart Scanner Section -->
+                <div class="scanner-section"
+                    style="background: rgba(0, 229, 255, 0.05); border: 1px dashed var(--primary); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;">
+                    <div style="flex: 1; min-width: 250px;">
+                        <label
+                            style="color: var(--primary); font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <path d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2z">
+                                </path>
+                                <path d="M8 7v10"></path>
+                                <path d="M12 7v10"></path>
+                                <path d="M16 7v10"></path>
+                            </svg>
+                            Smart Barcode Scanner
+                        </label>
+                        <div style="display: flex; gap: 1rem;">
+                            <div style="flex: 1; display: flex; position: relative;">
+                                <input type="text" id="scanIsbn" placeholder="Scan or type ISBN..."
+                                    style="width: 100%; background: var(--bg-dark); padding-right: 3rem;">
+                                <button type="button" onclick="startScanner('add')" title="Use Webcam Scanner"
+                                    style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color);">📷</button>
+                            </div>
+                            <button type="button" class="btn btn-primary" onclick="fetchBookDetails()"
+                                id="fetchBtn">Fetch</button>
+                        </div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.8rem; line-height: 1.4;">
+                            Scan an ISBN barcode to automatically fetch the book's title, author, category, and cover
+                            image from Google Books.</p>
+                    </div>
+
+                    <!-- Cover Image Preview -->
+                    <div id="coverPreviewContainer"
+                        style="width: 100px; height: 140px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--card-border); display: flex; justify-content: center; align-items: center; overflow: hidden; color: var(--text-muted); font-size: 0.8rem; text-align: center;">
+                        <span id="coverPlaceholderText">No Cover</span>
+                        <img id="coverPreviewImg" src=""
+                            style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                    </div>
+                </div>
+
+                <form id="addBookForm">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Title</label>
+                            <input type="text" id="bookTitle" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Author</label>
+                            <input type="text" id="bookAuthor" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Category</label>
+                            <select id="bookCategory" required>
+                                <!-- Options loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Stock</label>
+                            <input type="number" id="bookStock" min="1" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                            <label>Cover Image URL (Optional)</label>
+                            <input type="url" id="bookImageUrl" placeholder="https://example.com/cover.jpg"
+                                oninput="updateManualCover()">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center;">
+                        <button type="submit" class="btn btn-primary">Add Book</button>
+                        <span style="color: var(--text-muted); font-size: 0.9rem;">or</span>
+                        <input type="file" id="csvFileInput" accept=".csv, .txt" style="display: none;"
+                            onchange="processCsvImport(event)">
+                        <button type="button" class="btn"
+                            style="background: transparent; border: 1px solid var(--secondary); color: var(--secondary);"
+                            onclick="document.getElementById('csvFileInput').click()">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" style="margin-right: 0.5rem; vertical-align: middle;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="17 8 12 3 7 8"></polyline>
+                                <line x1="12" y1="3" x2="12" y2="15"></line>
+                            </svg>
+                            Bulk Import CSV
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="glass-panel" style="padding: 2rem;">
+                <div
+                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; flex: 1;">
+                        <h4 style="color: var(--primary); margin: 0; min-width: 150px;">Book Directory</h4>
+
+                        <!-- Inline Search -->
+                        <div style="position: relative; flex: 1; min-width: 200px; max-width: 400px;">
+                            <input type="text" id="inlineSearchInput" placeholder="Quick find a book to modify..."
+                                oninput="debounceInlineSearch()"
+                                style="width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main); font-size: 0.9rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                        </div>
+                    </div>
+
+                    <!-- Grid/List View Toggles -->
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div id="bookCountBadge"
+                            style="background: var(--primary-glow); color: var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(0, 229, 255, 0.2);">
+                            Loading...
+                        </div>
+                        <div class="view-toggles"
+                            style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.1); padding: 0.3rem; border-radius: 8px;">
+                            <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active"
+                                title="Grid View"
+                                style="background: var(--card-bg); border: none; color: var(--primary); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </button>
+                            <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn"
+                                title="List View"
+                                style="background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div> <!-- Close Header Flex Container -->
+
+                <!-- Interactive Book Grid -->
+                <div id="booksGrid" class="book-grid">
+                    <!-- Books injected here via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Categories Section -->
+        <div id="categoriesSection" class="hidden">
+            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Manage Categories</h3>
+            <div class="glass-panel" style="margin-bottom: 2rem; padding: 2rem; max-width: 600px;">
+                <h4 style="color: var(--primary); margin-bottom: 1.5rem;">Add Category</h4>
+                <form id="addCategoryForm" style="display: flex; gap: 1rem; align-items: flex-end;">
+                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                        <label>Category Name</label>
+                        <input type="text" id="categoryName" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+            <div class="glass-panel" style="padding: 2rem; max-width: 600px;">
+                <div class="table-container">
+                    <table id="categoriesTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Categories loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Manage Requests Section -->
+        <div id="requestsSection" class="hidden">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="margin-bottom: 0; font-size: 1.8rem;">Manage Requests</h3>
+                <div style="display: flex; gap: 1rem;">
+                    <input type="text" id="searchRequestInput" class="form-input" placeholder="Search requests..."
+                        style="width: 300px;" onkeyup="debounceRequestSearch()">
+                    <button class="btn btn-primary" onclick="startScanner('return')"
+                        style="display: flex; align-items: center; gap: 0.5rem; background: var(--primary);">
+                        <span style="font-size:1.2rem;">📷</span> Scan Return
+                    </button>
+                </div>
+            </div>
+            <div class="glass-panel" style="padding: 2rem;">
+                <div class="table-container">
+                    <table id="requestsTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Book</th>
+                                <th>Status</th>
+                                <th>Issue Date</th>
+                                <th>Due Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Requests loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ISBN Scanner Modal -->
+        <div id="scannerModal" class="modal hidden">
+            <div class="modal-content glass-panel" style="max-width: 500px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; align-items: center;">
+                    <h3 style="color:var(--text-color);">Scan OR Enter ISBN</h3>
+                    <button class="btn btn-danger" onclick="stopScanner()">Close</button>
+                </div>
+                <div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; background: #000;"></div>
+                <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Hold the
+                    back of the physical book up to your camera.</p>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border); text-align: center;">
+                    <p style="margin-bottom: 0.5rem; color: var(--primary); font-size: 0.9rem;">Manual Entry Fallback:</p>
+                    <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <input type="text" id="manualReturnIsbn" placeholder="Type ISBN precisely..." style="flex: 1; padding: 0.5rem; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text-main);">
+                        <button class="btn btn-primary" onclick="if(document.getElementById('manualReturnIsbn').value.trim()){ onScanSuccess(document.getElementById('manualReturnIsbn').value.trim()); document.getElementById('manualReturnIsbn').value=''; } else { alert('Please enter an ISBN.'); }">Submit</button>
+                    </div>
+                </div>
+                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border); text-align: center;">
+                    <p style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Or upload a barcode photo (Bypass Camera Error):</p>
+                    <input type="file" id="barcodeUpload" accept="image/*" style="width: 100%; padding: 0.5rem; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text-main);">
+                </div>
+            </div>
+        </div>
+        <!-- Bulk Import Progress Modal -->
+        <div id="progressModal" class="modal hidden">
+            <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
+                <h3 style="color: var(--secondary); font-size: 1.5rem; margin-bottom: 1rem;">Importing Library...</h3>
+                <p id="progressModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;">
+                    Initializing sequence...</p>
+
+                <div
+                    style="width: 100%; background: var(--bg-deep); border-radius: 8px; height: 12px; margin-bottom: 1rem; overflow: hidden; border: 1px solid var(--card-border);">
+                    <div id="progressBarFill"
+                        style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.3s ease;">
+                    </div>
+                </div>
+
+                <p id="progressModalCount" style="color: var(--text-muted); font-size: 0.9rem; font-family: monospace;">
+                    0 / 0</p>
+            </div>
+        </div>
+
+        <!-- Edit Book Modal -->
+        <div id="editBookModal" class="modal hidden">
+            <div class="modal-content glass-panel"
+                style="max-width: 600px; width: 90%; position: relative; padding: 2rem;">
+                <button class="close-btn" onclick="closeEditModal()"
+                    style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer; transition: color 0.3s; z-index: 10;">&times;</button>
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: var(--primary);">Modify Book</h3>
+
+                <form id="editBookForm">
+                    <input type="hidden" id="editBookId">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Title</label>
+                            <input type="text" id="editBookTitle" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Author</label>
+                            <input type="text" id="editBookAuthor" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Category</label>
+                            <select id="editBookCategory" required>
+                                <!-- Options loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Stock</label>
+                            <input type="number" id="editBookStock" min="0" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
+                            <label>Cover Image URL (Optional)</label>
+                            <input type="url" id="editBookImageUrl" placeholder="https://example.com/cover.jpg">
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+                        <button type="button" class="btn"
+                            style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
+                            onclick="closeEditModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Universal Custom Modal -->
+    <div id="customModal" class="modal hidden">
+        <div class="modal-content glass-panel"
+            style="max-width: 450px; width: 90%; position: relative; padding: 2.5rem; text-align: center; border-radius: 20px;">
+            <h3 id="customModalTitle" style="margin-bottom: 1rem; font-size: 1.6rem; color: var(--primary);">
+                Notification</h3>
+            <p id="customModalMessage"
+                style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.5;"></p>
+
+            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
+                <input type="number" id="customModalInput"
+                    style="width: 100%; text-align: center; font-size: 1.1rem; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main);">
+            </div>
+
+            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
+                <button id="customModalCancelBtn" class="btn hidden"
+                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
+                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            </div>
+        </div>
+    </div>
+    <!-- General Tenant Configuration Modal -->
+    <div id="configModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 400px; width: 90%; position: relative; border-radius: 20px;">
+            <button class="close-btn" onclick="document.getElementById('configModal').classList.add('hidden')">&times;</button>
+            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center;" class="gradient-text">Institution Settings</h2>
+            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Adjust fine calculations natively for your branch.</p>
+            
+            <form id="configForm">
+                <div class="form-group">
+                    <label>Currency Symbol Label</label>
+                    <input type="text" id="configCurrency" placeholder="e.g. ₹ or $" required>
+                </div>
+                <div class="form-group" style="margin-bottom: 2.5rem;">
+                    <label>Overdue Fine Escalation (Per Day)</label>
+                    <input type="number" id="configFinePerDay" placeholder="10" required>
+                </div>
+                
+                <div style="display: flex; gap: 1rem;">
+                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Configuration</button>
+                    <button type="button" class="btn" style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);" onclick="document.getElementById('configModal').classList.add('hidden')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="js/config.js"></script>
+    <script src="js/theme.js"></script>
+    <script src="js/librarian.js"></script>
+    <script>
+        // Tab UI Enhancement
+        document.addEventListener('DOMContentLoaded', () => {
+            const originalShowSection = window.showSection;
+            if (typeof originalShowSection === 'function') {
+                window.showSection = function (sectionId) {
+                    originalShowSection(sectionId);
+                    document.querySelectorAll('.tab-container .btn').forEach(btn => btn.classList.remove('active'));
+                    const activeBtn = document.getElementById('btn-' + sectionId);
+                    if (activeBtn) activeBtn.classList.add('active');
+                };
+            }
+        });
+    </script>
+</body>
+
+</html>

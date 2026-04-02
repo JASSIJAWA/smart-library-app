@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platform Command Center</title>
+    <!-- Use the existing global styling -->
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js"></script>
+    <style>
+        /* Force a darker, more executive theme for the super admin portal */
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        .container {
+            border-top: 4px solid var(--primary);
+        }
+    </style>
+</head>
+
+<body style="justify-content: center; align-items: center; min-height: 100vh; display: flex;">
+    <!-- Animated Background Orbs (Darker versions) -->
+    <div class="bg-orbs">
+        <div class="orb orb-1"
+            style="opacity: 0.2; background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);">
+        </div>
+        <div class="orb orb-2"
+            style="opacity: 0.1; background: radial-gradient(circle at center, rgba(255, 215, 0, 0.4) 0%, transparent 70%);">
+        </div>
+    </div>
+
+    <!-- Theme Toggle (Hidden for SuperAdmin to strictly enforce dark/executive mode if desired, or left for flexibility) -->
+    <div style="position: absolute; top: 1.5rem; right: 2rem; z-index: 100;">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
+    </div>
+
+    <div class="container glass-panel"
+        style="width: 100%; max-width: 450px; position: relative; z-index: 10; margin: 2rem;">
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <!-- Crown/Shield Icon indicating Master Access -->
+            <svg style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 1rem;" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
+                </path>
+            </svg>
+            <h1 style="font-size: 2rem; color: var(--text-color); margin-bottom: 0.5rem; letter-spacing: -0.5px;">
+                Command Center</h1>
+            <p
+                style="color: var(--primary); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">
+                Super Admin Access
+            </p>
+        </div>
+
+        <!-- Login Form -->
+        <form id="superAdminLoginForm">
+            <div class="form-group">
+                <label>Master Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@smartlibrary.com" required
+                    style="border-radius: 8px;">
+            </div>
+            <div class="form-group">
+                <label>Master Password</label>
+                <div class="password-container">
+                    <input type="password" id="loginPassword" placeholder="••••••••" required
+                        style="border-radius: 8px;">
+                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
+                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary"
+                style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 204, 153, 0.3);">
+                Authenticate Protocol
+            </button>
+        </form>
+    </div>
+
+    <!-- Universal Custom Modal from previous phases -->
+    <div id="customModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
+            <h3 id="customModalTitle" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem;">
+                Notification</h3>
+            <p id="customModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;"></p>
+            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
+                <input type="text" id="customModalInput" style="width: 100%; text-align: center;">
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="customModalCancelBtn" class="btn hidden"
+                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
+                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/superadmin.js"></script>
+    <script>
+        // Inline script to bind login toggle
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const eyeGroupElement = btn.closest('.password-container');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeGroupElement.classList.add('visible');
+            } else {
+                input.type = 'password';
+                eyeGroupElement.classList.remove('visible');
+            }
+        }
+    </script>
+</body>
+
+</html>

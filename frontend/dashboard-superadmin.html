@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SaaS Global Architecture</title>
+    <!-- Use the existing global styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/theme.js"></script>
+    <style>
+        .global-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--card-border);
+            padding: 1.5rem;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .global-card h3 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .global-card p {
+            color: var(--primary);
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .tenant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .tenant-card {
+            background: var(--bg-dark);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            position: relative;
+        }
+
+        .tenant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 204, 153, 0.1);
+        }
+
+        .tenant-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .tenant-badge.active {
+            background: rgba(0, 204, 153, 0.1);
+            color: var(--primary);
+        }
+
+        .tenant-badge.suspended {
+            background: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .tenant-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1.5rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--card-border);
+        }
+
+        .t-stat {
+            text-align: center;
+        }
+
+        .t-stat span {
+            display: block;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .t-stat small {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        /* Modal tweaks for provisioning */
+        .modal-content.wide {
+            max-width: 600px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Super Admin Navigation -->
+    <nav class="navbar" style="border-bottom: 2px solid var(--primary);">
+        <div class="nav-brand">
+            <svg style="width: 28px; height: 28px; margin-right: 0.5rem; color: var(--primary);" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
+                </path>
+            </svg>
+            SaaS Command Center
+        </div>
+        <div class="nav-links">
+            <button class="btn btn-primary" onclick="openProvisionModal()"
+                style="display: flex; align-items: center; gap: 0.5rem;">
+                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                </svg>
+                Provision Library
+            </button>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn"
+                title="Toggle Light/Dark Theme"></button>
+            <button class="btn btn-danger btn-logout" onclick="superAdminLogout()">Disconnect</button>
+        </div>
+    </nav>
+
+    <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+
+        <!-- Global Analytics Grid -->
+        <h2 style="font-size: 1.4rem; margin-bottom: 1rem; color: var(--text-color);">Platform Yield Aggregation</h2>
+        <div
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
+            <div class="global-card">
+                <h3>Total Tenants</h3>
+                <p id="statTotalTenants">-</p>
+            </div>
+            <div class="global-card">
+                <h3>Active Tenants</h3>
+                <p id="statActiveTenants" style="color: #17a2b8;">-</p>
+            </div>
+            <div class="global-card">
+                <h3>Total Network Users</h3>
+                <p id="statTotalUsers" style="color: #ffc107;">-</p>
+            </div>
+            <div class="global-card">
+                <h3>Total Stored Books</h3>
+                <p id="statTotalBooks" style="color: #28a745;">-</p>
+            </div>
+        </div>
+
+        <!-- Tenants Grid -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <h2 style="font-size: 1.4rem; color: var(--text-color);">Library Instances Matrix</h2>
+            <button class="btn"
+                style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
+                onclick="loadTenantsGrid()">Refresh Matrix</button>
+        </div>
+
+        <div id="tenantsGrid" class="tenant-grid">
+            <!-- Dynamically populated tenant cards -->
+        </div>
+
+    </div>
+
+    <!-- Provisioning Modal -->
+    <div id="provisionModal" class="modal hidden">
+        <div class="modal-content glass-panel wide">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h3 style="color: var(--primary); font-size: 1.5rem;">Provision New SaaS Tenant</h3>
+                <button class="btn btn-danger" style="padding: 0.5rem 1rem;"
+                    onclick="closeProvisionModal()">Close</button>
+            </div>
+            <form id="provisionForm">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    <div>
+                        <h4
+                            style="color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card-border);">
+                            Institution Details</h4>
+                        <div class="form-group">
+                            <label>Institution Name <span style="color:red">*</span></label>
+                            <input type="text" id="tenantName" placeholder="e.g. Harvard Law School" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Secure Subdomain <span style="color:red">*</span></label>
+                            <div style="display: flex; align-items: center;">
+                                <input type="text" id="tenantSubdomain" placeholder="harvard" required
+                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                                <span
+                                    style="background: var(--bg-deep); padding: 0.8rem; border: 1px solid var(--card-border); border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px; color: var(--text-muted);">.loca.lt</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Primary Brand Color (Optional)</label>
+                            <input type="color" id="tenantPrimaryColor" value="#2563eb"
+                                style="height: 50px; padding: 0.2rem; cursor: pointer;">
+                        </div>
+                    </div>
+                    <div>
+                        <h4
+                            style="color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card-border);">
+                            Head Librarian Assignment</h4>
+                        <div class="form-group">
+                            <label>Admin Full Name <span style="color:red">*</span></label>
+                            <input type="text" id="adminName" placeholder="Jane Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Email <span style="color:red">*</span></label>
+                            <input type="email" id="adminEmail" placeholder="admin@harvard.edu" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Admin Password <span style="color:red">*</span></label>
+                            <input type="text" id="adminPassword" placeholder="Initial Password" required>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary"
+                    style="width: 100%; margin-top: 2rem; font-size: 1.1rem; padding: 1rem;">Allocate Server Resources &
+                    Initialize Library</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tenant Details Modal -->
+    <div id="tenantDetailsModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 500px; width: 90%;">
+            <button class="close-btn" onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')"
+                style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
+            <h3
+                style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">
+                Tenant Configuration</h3>
+
+            <div
+                style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; text-align: left; margin-bottom: 2rem;">
+                <strong style="color: var(--text-muted);">Name:</strong>
+                <span id="detailName" style="color: var(--text-main);"></span>
+
+                <strong style="color: var(--text-muted);">Admin:</strong>
+                <span id="detailAdminName" style="color: var(--text-main);"></span>
+
+                <strong style="color: var(--text-muted);">Email:</strong>
+                <span id="detailAdminEmail" style="color: var(--text-main);"></span>
+
+                <strong style="color: var(--text-muted);">Subdomain:</strong>
+                <span id="detailSubdomain" style="color: var(--primary); font-family: monospace;"></span>
+
+                <strong style="color: var(--text-muted);">Primary Color:</strong>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div id="detailColorSwatch"
+                        style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);">
+                    </div>
+                    <span id="detailColorHex" style="color: var(--text-main); font-family: monospace;"></span>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" style="width: 100%;"
+                onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">Close Details</button>
+        </div>
+    </div>
+
+    <!-- Universal Custom Modal from previous phases -->
+    <div id="customModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
+            <h3 id="customModalTitle" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem;">
+                Notification</h3>
+            <p id="customModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;"></p>
+            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
+                <input type="text" id="customModalInput" style="width: 100%; text-align: center;">
+            </div>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button id="customModalCancelBtn" class="btn hidden"
+                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
+                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/superadmin.js"></script>
+</body>
+
+</html>
