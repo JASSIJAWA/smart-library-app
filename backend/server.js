@@ -46,19 +46,6 @@ connectDB();
 // Must be mounted BEFORE attachTenant to bypass tenant-isolation sandboxing
 app.use('/api/superadmin', require('./routes/superadminRoutes'));
 
-// --- SaaS Multi-Tenancy Router ---
-const { attachTenant } = require('./middleware/tenantMiddleware');
-app.use('/api', attachTenant);
-
-// Routes
-app.use('/api/tenant', require('./routes/tenantRoutes'));
-app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/categories', require('./routes/categoryRoutes'));
-app.use('/api/books', require('./routes/bookRoutes'));
-app.use('/api/requests', require('./routes/requestRoutes'));
-app.use('/api/fines', require('./routes/fineRoutes'));
-app.use('/api/analytics', require('./routes/analyticsRoutes'));
-
 // Temporary Cloud Shell Bypass for Seeding Database natively via HTTPS
 app.get('/api/seed-master', async (req, res) => {
     try {
@@ -77,6 +64,19 @@ app.get('/api/seed-master', async (req, res) => {
         res.status(500).send('Error seeding database: ' + err.message);
     }
 });
+
+// --- SaaS Multi-Tenancy Router ---
+const { attachTenant } = require('./middleware/tenantMiddleware');
+app.use('/api', attachTenant);
+
+// Routes
+app.use('/api/tenant', require('./routes/tenantRoutes'));
+app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/categories', require('./routes/categoryRoutes'));
+app.use('/api/books', require('./routes/bookRoutes'));
+app.use('/api/requests', require('./routes/requestRoutes'));
+app.use('/api/fines', require('./routes/fineRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 // Serve Frontend Static Files
 app.use(express.static(path.join(__dirname, '../frontend')));
