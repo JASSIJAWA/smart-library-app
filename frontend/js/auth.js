@@ -204,3 +204,58 @@ loginOtpVerifyForm.addEventListener('submit', async (e) => {
         alert('Error: ' + err.message);
     }
 });
+
+// 6. Forgot Password OTP Request
+forgotPasswordRequestForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('forgotRequestEmail').value;
+    const subdomain = document.getElementById('forgotSubdomain').value.trim();
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (subdomain) headers['x-tenant-subdomain'] = subdomain;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/forgot-password-request`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message || 'Action rejected.');
+
+        tempEmail = email;
+        tempSubdomain = subdomain;
+        hideAllForms();
+        forgotPasswordVerifyForm.classList.remove('hidden');
+        alert('If your email matches an account, a recovery securely dispatched. Enter code.');
+    } catch (err) {
+        alert('System Error: ' + err.message);
+    }
+});
+
+// 7. Forgot Password OTP Verify
+forgotPasswordVerifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otp = document.getElementById('forgotVerifyOtp').value.trim();
+    const newPassword = document.getElementById('forgotNewPassword').value.trim();
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (tempSubdomain) headers['x-tenant-subdomain'] = tempSubdomain;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/forgot-password-verify`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ email: tempEmail, otp, newPassword })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message || 'Pin validation error.');
+
+        hideAllForms();
+        loginForm.classList.remove('hidden');
+        document.getElementById('loginEmail').value = tempEmail;
+        alert('Password Overwritten! You can now log in.');
+    } catch (err) {
+        alert('System Error: ' + err.message);
+    }
+});

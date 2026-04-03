@@ -155,8 +155,8 @@ const forgotPasswordVerify = async (req, res) => {
             return res.status(400).json({ message: 'Master Key has decayed and expired.' });
         }
 
-        const salt = await bcrypt.genSalt(10);
-        admin.password = await bcrypt.hash(newPassword, salt);
+        // Apply new raw password. The SuperAdmin schema pre('save') hook will automatically hash this.
+        admin.password = newPassword;
         
         admin.otpAuthCode = null;
         admin.otpExpiry = null;

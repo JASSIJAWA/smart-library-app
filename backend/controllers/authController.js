@@ -214,7 +214,7 @@ const getMe = async (req, res) => {
 const forgotPasswordRequest = async (req, res) => {
     const { email } = req.body;
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email, tenantId: req.tenant._id });
         if (!user) {
             // Silently return 200 for security, simulating success even if bad email
             return res.json({ message: 'If an account exists, a recovery code was dispatched.' });
@@ -246,7 +246,7 @@ const forgotPasswordVerify = async (req, res) => {
     }
 
     try {
-        const user = await User.findOne({ email });
+        const user = await User.findOne({ email, tenantId: req.tenant._id });
 
         if (!user || user.otpAuthCode !== otp) {
             return res.status(400).json({ message: 'Invalid or Expired Security Matrix.' });
