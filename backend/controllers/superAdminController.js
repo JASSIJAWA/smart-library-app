@@ -55,7 +55,7 @@ const login = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const admin = await SuperAdmin.findOne({ email });
+        const admin = await SuperAdmin.findOne({ email: email.toLowerCase() });
 
         if (admin && (await admin.matchPassword(password))) {
             if (!admin.isActive) {
@@ -86,7 +86,7 @@ const login = async (req, res) => {
 const loginVerify = async (req, res) => {
     const { email, otp } = req.body;
     try {
-        const admin = await SuperAdmin.findOne({ email });
+        const admin = await SuperAdmin.findOne({ email: email.toLowerCase() });
         
         if (!admin) return res.status(404).json({ message: 'Admin layer not found.' });
         if (!admin.isActive) return res.status(403).json({ message: 'Admin layer permanently locked.' });
@@ -114,7 +114,7 @@ const loginVerify = async (req, res) => {
 const forgotPasswordRequest = async (req, res) => {
     const { email } = req.body;
     try {
-        const admin = await SuperAdmin.findOne({ email });
+        const admin = await SuperAdmin.findOne({ email: email.toLowerCase() });
         if (!admin) {
             return res.json({ message: 'If credentials match, a Master Key was dispatched.' });
         }
@@ -145,7 +145,7 @@ const forgotPasswordVerify = async (req, res) => {
     }
 
     try {
-        const admin = await SuperAdmin.findOne({ email });
+        const admin = await SuperAdmin.findOne({ email: email.toLowerCase() });
 
         if (!admin || admin.otpAuthCode !== otp) {
             return res.status(400).json({ message: 'Invalid or Expired Master Key.' });
