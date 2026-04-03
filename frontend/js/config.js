@@ -1,3 +1,16 @@
+// Strict Session Shredding on F5 / Page Refresh
+const navEntries = performance.getEntriesByType("navigation");
+const isReload = (navEntries.length > 0 && navEntries[0].type === "reload") || 
+                 (window.performance && window.performance.navigation && window.performance.navigation.type === 1);
+
+if (isReload) {
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('name');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('superAdminToken');
+}
+
 // Dynamically determine API URL so the app works both as a local file and when hosted/tunneled
 const API_URL = window.location.protocol === 'file:'
     ? 'http://localhost:5000/api'
