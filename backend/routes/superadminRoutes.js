@@ -7,13 +7,19 @@ const {
     getAllTenants,
     createTenant,
     toggleTenantStatus,
-    deleteTenant
+    deleteTenant,
+    forgotPasswordRequest,
+    forgotPasswordVerify
 } = require('../controllers/superAdminController');
 const { protectSuperAdmin } = require('../middleware/superAdminAuth');
 
 // Public
 router.post('/login', login);
 router.post('/login-verify', loginVerify);
+
+// Forgot Password Flow
+router.post('/forgot-password-request', forgotPasswordRequest);
+router.post('/forgot-password-verify', forgotPasswordVerify);
 
 // Protected by SuperAdmin JWT
 router.get('/stats', protectSuperAdmin, getGlobalStats);

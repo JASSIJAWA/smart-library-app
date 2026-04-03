@@ -79,6 +79,9 @@
                     </button>
                 </div>
             </div>
+            <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1rem;">
+                <a href="#" id="showAdminForgotPassword" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;">Forgot Password?</a>
+            </div>
             <button type="submit" class="btn btn-primary"
                 style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 204, 153, 0.3);">
                 Authenticate Protocol
@@ -98,6 +101,36 @@
             <p style="text-align: center; margin-top: 1.5rem;">
                 <a href="#" id="backToMasterLogin" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Abort Handshake</a>
             </p>
+        </form>
+
+        <!-- Admin Forgot Password Request (Hidden) -->
+        <form id="adminForgotPasswordRequestForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b; letter-spacing: 2px;">RECOVERY 2FA</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Input Master Email to intercept 2FA code.</p>
+            <div class="form-group">
+                <input type="email" id="adminForgotEmail" placeholder="admin@master.com" required style="border-radius: 8px;">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+                Signal Ops
+            </button>
+            <p style="text-align: center; margin-top: 1.5rem;">
+                <a href="#" id="backToMasterLoginFromForgot" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Abort Recovery</a>
+            </p>
+        </form>
+
+        <!-- Admin Forgot Password Verify (Hidden) -->
+        <form id="adminForgotPasswordVerifyForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b; letter-spacing: 2px;">RESET MATRIX</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Input Recovery Pin and New Matrix Key.</p>
+            <div class="form-group">
+                <input type="text" id="adminForgotVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; color: #f59e0b;" required>
+            </div>
+            <div class="form-group">
+                <input type="password" id="adminForgotNewPassword" placeholder="New Master Key" required style="border-radius: 8px;">
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+                Confirm Override
+            </button>
         </form>
     </div>
 

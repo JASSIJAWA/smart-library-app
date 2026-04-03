@@ -56,7 +56,10 @@
                     </button>
                 </div>
             </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Login to Account</button>
+            <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1rem;">
+                <a href="#" id="showForgotPassword" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;">Forgot Password?</a>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Login to Account</button>
             <button type="button" id="showOtpLogin" class="btn" style="width: 100%; margin-top: 0.5rem; background: #334155; color: white;">✨ Login via Email Code</button>
             <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
                 New to Smart Library? <a href="#" id="showRegister" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s; padding-left: 0.3rem;">Register Now</a>
@@ -147,6 +150,50 @@
                 <input type="text" id="loginVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;" required>
             </div>
             <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Authenticate</button>
+        </form>
+
+        <!-- Forgot Password Request Form (Hidden) -->
+        <form id="forgotPasswordRequestForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;">Account Recovery</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Enter your email to reset your password.</p>
+            <div class="form-group">
+                <label>Institution Code (Local Testing)</label>
+                <input type="text" id="forgotSubdomain" placeholder="e.g. iilm (leave blank for default)">
+            </div>
+            <div class="form-group">
+                <label>Registered Email Address</label>
+                <input type="email" id="forgotRequestEmail" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: #f59e0b; border-color: #f59e0b; color: white;">Send Recovery Code</button>
+            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
+                <a href="#" id="showLoginFromForgot" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s;">Back to Login</a>
+            </p>
+        </form>
+
+        <!-- Forgot Password Verify & Reset Form (Hidden) -->
+        <form id="forgotPasswordVerifyForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;">Reset Password</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Enter the security pin and your new password.</p>
+            <div class="form-group">
+                <label>Security Pin (OTP)</label>
+                <input type="text" id="forgotVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;" required>
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <div class="password-container">
+                    <input type="password" id="forgotNewPassword" placeholder="Create new password" required>
+                    <button type="button" class="password-toggle" onclick="togglePassword('forgotNewPassword', this)">
+                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: #f59e0b; border-color: #f59e0b; color: white;">Finalize Reset</button>
         </form>
     </div>
 

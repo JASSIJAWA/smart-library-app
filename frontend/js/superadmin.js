@@ -20,7 +20,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const loginForm = document.getElementById('superAdminLoginForm');
         const otpForm = document.getElementById('superAdminOtpForm');
+        const forgotRequestForm = document.getElementById('adminForgotPasswordRequestForm');
+        const forgotVerifyForm = document.getElementById('adminForgotPasswordVerifyForm');
         let tempMasterEmail = '';
+
+        function hideAllForms() {
+            loginForm.classList.add('hidden');
+            otpForm.classList.add('hidden');
+            if (forgotRequestForm) forgotRequestForm.classList.add('hidden');
+            if (forgotVerifyForm) forgotVerifyForm.classList.add('hidden');
+        }
 
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
@@ -76,8 +85,79 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.getElementById('backToMasterLogin').addEventListener('click', (e) => {
                 e.preventDefault();
-                otpForm.classList.add('hidden');
+                hideAllForms();
                 loginForm.classList.remove('hidden');
+            });
+        }
+
+        // --- Forgot Password Flow ---
+        const showForgotBtn = document.getElementById('showAdminForgotPassword');
+        if (showForgotBtn) {
+            showForgotBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                hideAllForms();
+                forgotRequestForm.classList.remove('hidden');
+            });
+        }
+
+        if (forgotRequestForm) {
+            forgotRequestForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('adminForgotEmail').value.trim();
+
+                try {
+                    const res = await fetch(`${API_URL}/superadmin/forgot-password-request`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        tempMasterEmail = email;
+                        hideAllForms();
+                        forgotVerifyForm.classList.remove('hidden');
+                        showCustomAlert('Recovery Signal', data.message, true);
+                    } else {
+                        showCustomAlert('Signal Blocked', data.message || 'Action rejected.', false);
+                    }
+                } catch(err) {
+                    showCustomAlert('System Error', 'Could not reach server cluster for recovery.', false);
+                }
+            });
+
+            document.getElementById('backToMasterLoginFromForgot').addEventListener('click', (e) => {
+                e.preventDefault();
+                hideAllForms();
+                loginForm.classList.remove('hidden');
+            });
+        }
+
+        if (forgotVerifyForm) {
+            forgotVerifyForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const otp = document.getElementById('adminForgotVerifyOtp').value.trim();
+                const newPassword = document.getElementById('adminForgotNewPassword').value.trim();
+
+                try {
+                    const res = await fetch(`${API_URL}/superadmin/forgot-password-verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: tempMasterEmail, otp, newPassword })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        hideAllForms();
+                        loginForm.classList.remove('hidden');
+                        document.getElementById('loginEmail').value = tempMasterEmail;
+                        showCustomAlert('Matrix Overwritten', data.message, true);
+                    } else {
+                        showCustomAlert('Reset Failed', data.message || 'Pin validation error.', false);
+                    }
+                } catch(err) {
+                    showCustomAlert('System Error', 'Server offline.', false);
+                }
             });
         }
     }

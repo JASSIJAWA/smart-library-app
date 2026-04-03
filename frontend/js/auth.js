@@ -3,11 +3,15 @@ const registerForm = document.getElementById('registerForm');
 const registerVerifyForm = document.getElementById('registerVerifyForm');
 const loginOtpRequestForm = document.getElementById('loginOtpRequestForm');
 const loginOtpVerifyForm = document.getElementById('loginOtpVerifyForm');
+const forgotPasswordRequestForm = document.getElementById('forgotPasswordRequestForm');
+const forgotPasswordVerifyForm = document.getElementById('forgotPasswordVerifyForm');
 
 const showRegisterBtn = document.getElementById('showRegister');
 const showLoginBtn = document.getElementById('showLogin');
 const showOtpLoginBtn = document.getElementById('showOtpLogin');
 const showLoginFromOtpReq = document.getElementById('showLoginFromOtpReq');
+const showForgotPasswordBtn = document.getElementById('showForgotPassword');
+const showLoginFromForgotBtn = document.getElementById('showLoginFromForgot');
 
 let tempEmail = '';
 let tempSubdomain = '';
@@ -19,6 +23,8 @@ const hideAllForms = () => {
     registerVerifyForm.classList.add('hidden');
     loginOtpRequestForm.classList.add('hidden');
     loginOtpVerifyForm.classList.add('hidden');
+    forgotPasswordRequestForm.classList.add('hidden');
+    forgotPasswordVerifyForm.classList.add('hidden');
 };
 
 showRegisterBtn.addEventListener('click', (e) => {
@@ -39,11 +45,29 @@ showOtpLoginBtn.addEventListener('click', (e) => {
     loginOtpRequestForm.classList.remove('hidden');
 });
 
-showLoginFromOtpReq.addEventListener('click', (e) => {
-    e.preventDefault();
-    hideAllForms();
-    loginForm.classList.remove('hidden');
-});
+if (showLoginFromOtpReq) {
+    showLoginFromOtpReq.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllForms();
+        loginForm.classList.remove('hidden');
+    });
+}
+
+if (showForgotPasswordBtn) {
+    showForgotPasswordBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllForms();
+        forgotPasswordRequestForm.classList.remove('hidden');
+    });
+}
+
+if (showLoginFromForgotBtn) {
+    showLoginFromForgotBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        hideAllForms();
+        loginForm.classList.remove('hidden');
+    });
+}
 
 // Helper for Session Storage
 const handleSessionSuccess = (data, subdomain) => {

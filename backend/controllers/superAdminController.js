@@ -108,6 +108,69 @@ const loginVerify = async (req, res) => {
     }
 };
 
+// @desc    Request Password Reset via OTP
+// @route   POST /api/superadmin/forgot-password-request
+// @access  Public
+const forgotPasswordRequest = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const admin = await SuperAdmin.findOne({ email });
+        if (!admin) {
+            return res.json({ message: 'If credentials match, a Master Key was dispatched.' });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        admin.otpAuthCode = otp;
+        admin.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+        await admin.save();
+
+        sendMasterOtpEmail(admin.email, otp);
+        res.json({ message: 'If credentials match, a Master Key was dispatched.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server fault during recovery attempt.' });
+    }
+};
+
+// @desc    Verify OTP and Reset Password for SuperAdmin
+// @route   POST /api/superadmin/forgot-password-verify
+// @access  Public
+const forgotPasswordVerify = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({ message: 'Weak Master Password. Requires 8+ chars, uppercase, number, special char.' });
+    }
+
+    try {
+        const admin = await SuperAdmin.findOne({ email });
+
+        if (!admin || admin.otpAuthCode !== otp) {
+            return res.status(400).json({ message: 'Invalid or Expired Master Key.' });
+        }
+
+        if (new Date() > admin.otpExpiry) {
+            return res.status(400).json({ message: 'Master Key has decayed and expired.' });
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        admin.password = await bcrypt.hash(newPassword, salt);
+        
+        admin.otpAuthCode = null;
+        admin.otpExpiry = null;
+        
+        await admin.save();
+
+        res.json({ message: 'Master Password successfully reset. You may now authenticate.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Fault analyzing recovery payload.' });
+    }
+};
+
 // @desc    Get Global Platform Stats
 // @route   GET /api/superadmin/stats
 // @access  Private (SuperAdmin)
@@ -268,5 +331,7 @@ module.exports = {
     getAllTenants,
     createTenant,
     toggleTenantStatus,
-    deleteTenant
+    deleteTenant,
+    forgotPasswordRequest,
+    forgotPasswordVerify
 };

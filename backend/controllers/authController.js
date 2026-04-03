@@ -208,11 +208,82 @@ const getMe = async (req, res) => {
     res.status(200).json(req.user);
 };
 
+// @desc    Request Password Reset via OTP
+// @route   POST /api/auth/forgot-password-request
+// @access  Public
+const forgotPasswordRequest = async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email });
+        if (!user) {
+            // Silently return 200 for security, simulating success even if bad email
+            return res.json({ message: 'If an account exists, a recovery code was dispatched.' });
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.otpAuthCode = otp;
+        user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        await user.save();
+
+        sendOtpEmail(user.email, user.name, otp, 'Password Recovery Matrix');
+        res.json({ message: 'If an account exists, a recovery code was dispatched.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server fault during recovery request' });
+    }
+};
+
+// @desc    Verify OTP and Reset Password
+// @route   POST /api/auth/forgot-password-verify
+// @access  Public
+const forgotPasswordVerify = async (req, res) => {
+    const { email, otp, newPassword } = req.body;
+
+    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return res.status(400).json({ message: 'Weak Password. Must contain 8+ chars, 1 uppercase, 1 number, and 1 special char.' });
+    }
+
+    try {
+        const user = await User.findOne({ email });
+
+        if (!user || user.otpAuthCode !== otp) {
+            return res.status(400).json({ message: 'Invalid or Expired Security Matrix.' });
+        }
+
+        if (new Date() > user.otpExpiry) {
+            return res.status(400).json({ message: 'OTP has decayed and expired.' });
+        }
+
+        // Apply new password
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(newPassword, salt);
+        
+        // Destruct OTP state
+        user.otpAuthCode = null;
+        user.otpExpiry = null;
+        
+        // Ensure they are verified if they managed to reset via OTP
+        user.isVerified = true;
+        
+        await user.save();
+
+        res.json({ message: 'Password Reset Successful! You may now authenticate.' });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error analyzing recovery payload.' });
+    }
+};
+
 module.exports = {
     registerUser,
     verifyRegistration,
     loginUser,
     requestLoginOtp,
     verifyLoginOtp,
-    getMe
+    getMe,
+    forgotPasswordRequest,
+    forgotPasswordVerify
 };
