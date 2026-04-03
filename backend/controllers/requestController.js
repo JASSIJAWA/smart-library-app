@@ -55,6 +55,67 @@ const createRequest = async (req, res) => {
         // Broadcast to Librarians (and potentially the user if they had multiple tabs)
         if (io) io.emit('new_request');
 
+        // Email Dispatcher Integration
+        const nodemailer = require('nodemailer');
+        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+            try {
+                const transporter = nodemailer.createTransport({
+                    service: 'gmail',
+                    auth: {
+                        user: process.env.EMAIL_USER,
+                        pass: process.env.EMAIL_PASS
+                    }
+                });
+
+                let emailSubject = '';
+                let emailHtml = '';
+
+                if (designatedStatus === 'Requested') {
+                    emailSubject = '📚 Library Reservation Confirmed - Security OTP';
+                    emailHtml = `
+                        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; background: #ffffff;">
+                            <h2 style="color: #00cc99; margin-top: 0; font-size: 24px;">Reservation Confirmed</h2>
+                            <p style="color: #4a5568; font-size: 16px;">Hi <b>${req.user.name}</b>,</p>
+                            <p style="color: #4a5568; font-size: 16px;">Your physical copy request for <strong>"${book.title}"</strong> has been successfully placed by the system.</p>
+                            <p style="color: #4a5568; font-size: 16px;">To verify your identity upon physical pickup, please present the following 6-digit Security Pin to the Librarian:</p>
+                            
+                            <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #1e293b; margin: 25px 0; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                                ${otp}
+                            </div>
+                            
+                            <p style="color: #718096; font-size: 14px; font-style: italic;">Note: Library personnel will never ask for this code outside of the official scanning desk. Do not share your pin.</p>
+                        </div>
+                    `;
+                } else if (designatedStatus === 'Waitlisted') {
+                    emailSubject = '⏳ Library Waitlist Confirmed';
+                    emailHtml = `
+                        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; background: #ffffff;">
+                            <h2 style="color: #f59e0b; margin-top: 0; font-size: 24px;">Active Waitlist Reserved</h2>
+                            <p style="color: #4a5568; font-size: 16px;">Hi <b>${req.user.name}</b>,</p>
+                            <p style="color: #4a5568; font-size: 16px;">You have successfully reserved a virtual queue slot for <strong>"${book.title}"</strong>.</p>
+                            <p style="color: #4a5568; font-size: 16px;">The system will continually monitor the physical inventory. The exact moment a copy is scanned back independently, we will automatically upgrade your slot and generate your Security OTP!</p>
+                            <br/>
+                            <p style="color: #718096; font-size: 14px; font-style: italic;">Check your live Member Dashboard for instantaneous queue updates.</p>
+                        </div>
+                    `;
+                }
+
+                if (emailSubject) {
+                    const mailOptions = {
+                        from: `"Smart Library Dispatch" <${process.env.EMAIL_USER}>`,
+                        to: req.user.email,
+                        subject: emailSubject,
+                        html: emailHtml
+                    };
+                    transporter.sendMail(mailOptions)
+                        .then(() => console.log(`[Email] Dispatched to ${req.user.email}`))
+                        .catch(err => console.error("[Email] Sending failed:", err));
+                }
+            } catch (mailError) {
+                console.error("[Email] Transport configuration error:", mailError);
+            }
+        }
+
         res.status(201).json(request);
     } catch (error) {
         res.status(500).json({ message: error.message });
