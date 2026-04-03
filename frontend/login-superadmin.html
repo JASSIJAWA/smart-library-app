@@ -126,7 +126,18 @@
                 <input type="text" id="adminForgotVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; color: #f59e0b;" required>
             </div>
             <div class="form-group">
-                <input type="password" id="adminForgotNewPassword" placeholder="New Master Key" required style="border-radius: 8px;">
+                <div class="password-container">
+                    <input type="password" id="adminForgotNewPassword" placeholder="New Master Key" required style="border-radius: 8px;">
+                    <button type="button" class="password-toggle" onclick="togglePassword('adminForgotNewPassword', this)">
+                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
                 Confirm Override
