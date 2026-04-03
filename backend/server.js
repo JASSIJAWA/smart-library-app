@@ -41,14 +41,9 @@ app.use(bodyParser.json());
 
 // Database Connection
 connectDB().then(async () => {
-    // Dynamic Cloud Seeder - Aggressive Variant
+    // Dynamic Cloud Seeder
     try {
         const SuperAdmin = require('./models/SuperAdmin');
-        
-        // Log all existing super admins to terminal for debugging
-        const allAdmins = await SuperAdmin.find({}, 'email');
-        console.log(`\n=== DATACENTER DIAGNOSTIC ===`);
-        console.log(`Current SuperAdmins in Cloud DB: ${allAdmins.map(a => a.email).join(', ') || 'NONE'}`);
         
         // Forcefully ensure smartlib18 exists
         const adminExists = await SuperAdmin.findOne({ email: 'smartlib18@gmail.com' });
@@ -59,11 +54,7 @@ connectDB().then(async () => {
                 isActive: true
             });
             await admin.save();
-            console.log('Global Master SuperAdmin (smartlib18) auto-seeded into cloud database.');
-        } else {
-            console.log('smartlib18@gmail.com already exists globally.');
         }
-        console.log(`=============================\n`);
     } catch(err) {
         console.error('Auto-seeding bypassed:', err.message);
     }

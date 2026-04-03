@@ -68,7 +68,6 @@ const login = async (req, res) => {
             admin.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
             await admin.save();
 
-            console.log(`\n=========================================\n[MASTER KEY 2FA] Login OTP generated for ${admin.email}: ${otp}\n=========================================\n`);
             sendMasterOtpEmail(admin.email, otp);
 
             res.status(200).json({ message: 'Master Key Handshake constructed. Secure Transmission sent via SMTP.' });
@@ -125,7 +124,6 @@ const forgotPasswordRequest = async (req, res) => {
         admin.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
         await admin.save();
 
-        console.log(`\n=========================================\n[MASTER KEY RECOVERY] Reset OTP generated for ${admin.email}: ${otp}\n=========================================\n`);
         sendMasterOtpEmail(admin.email, otp);
         res.json({ message: 'If credentials match, a Master Key was dispatched.' });
 
