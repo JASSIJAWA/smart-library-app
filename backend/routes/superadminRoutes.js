@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
     login,
+    loginVerify,
     getGlobalStats,
     getAllTenants,
     createTenant,
@@ -12,6 +13,7 @@ const { protectSuperAdmin } = require('../middleware/superAdminAuth');
 
 // Public
 router.post('/login', login);
+router.post('/login-verify', loginVerify);
 
 // Protected by SuperAdmin JWT
 router.get('/stats', protectSuperAdmin, getGlobalStats);

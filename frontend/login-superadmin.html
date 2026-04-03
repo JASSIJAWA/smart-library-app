@@ -84,6 +84,21 @@
                 Authenticate Protocol
             </button>
         </form>
+
+        <!-- 2FA Matrix Form -->
+        <form id="superAdminOtpForm" class="hidden">
+            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #ef4444; letter-spacing: 2px;">2FA REQUIRED</h2>
+            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">The Master Key was sent to your secure inbox.</p>
+            <div class="form-group">
+                <input type="text" id="adminVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; color: #ef4444;" required>
+            </div>
+            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #ef4444; color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
+                Complete Handshake
+            </button>
+            <p style="text-align: center; margin-top: 1.5rem;">
+                <a href="#" id="backToMasterLogin" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Abort Handshake</a>
+            </p>
+        </form>
     </div>
 
     <!-- Universal Custom Modal from previous phases -->

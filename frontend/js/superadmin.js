@@ -19,6 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const loginForm = document.getElementById('superAdminLoginForm');
+        const otpForm = document.getElementById('superAdminOtpForm');
+        let tempMasterEmail = '';
+
         if (loginForm) {
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -34,14 +37,47 @@ document.addEventListener('DOMContentLoaded', () => {
                     const data = await res.json();
 
                     if (res.ok) {
-                        localStorage.setItem('superAdminToken', data.token);
-                        window.location.href = 'dashboard-superadmin.html';
+                        tempMasterEmail = email;
+                        loginForm.classList.add('hidden');
+                        otpForm.classList.remove('hidden');
+                        showCustomAlert('Matrix Active', 'Master keys dispatched. Enter precisely 6 digits to drop payload.', true);
                     } else {
                         showCustomAlert('Access Denied', data.message || 'Invalid Master Credentials', false);
                     }
                 } catch (err) {
                     showCustomAlert('System Error', 'Could not reach the global API. Ensure server is online.', false);
                 }
+            });
+        }
+
+        if (otpForm) {
+            otpForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const otp = document.getElementById('adminVerifyOtp').value.trim();
+
+                try {
+                    const res = await fetch(`${API_URL}/superadmin/login-verify`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: tempMasterEmail, otp })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        localStorage.setItem('superAdminToken', data.token);
+                        window.location.href = 'dashboard-superadmin.html';
+                    } else {
+                        showCustomAlert('Authorization Blocked', data.message || 'Invalid 2FA Configuration.', false);
+                    }
+                } catch (err) {
+                    showCustomAlert('System Error', 'Server link severed during decryption.', false);
+                }
+            });
+
+            document.getElementById('backToMasterLogin').addEventListener('click', (e) => {
+                e.preventDefault();
+                otpForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
             });
         }
     }

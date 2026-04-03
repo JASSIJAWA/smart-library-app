@@ -6,6 +6,7 @@ const Request = require('../models/Request');
 const Category = require('../models/Category');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -14,7 +15,40 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Auth SuperAdmin & get token
+// Master Notification NodeMailer
+const sendMasterOtpEmail = async (email, otp) => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn("SMTP missing, logging super admin OTP: ", otp);
+        return;
+    }
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        
+        let htmlBody = `
+            <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; border: 2px solid #ef4444; padding: 30px; border-radius: 4px; background: #000; color: #fff;">
+                <h2 style="color: #ef4444; margin-top: 0; font-size: 24px; text-transform: uppercase;">Global Command Center 2FA</h2>
+                <p style="font-size: 16px;">A login handshake was initiated for the Master Super Admin console.</p>
+                <div style="background-color: #1a1a1a; padding: 25px; text-align: center; font-size: 38px; font-weight: 800; letter-spacing: 12px; color: #ef4444; margin: 30px 0; border: 1px dashed #ef4444;">
+                    ${otp}
+                </div>
+                <p style="color: #666; font-size: 12px;">AUTHORIZATION MATRIX EXPIRES IN 10 MINUTES.</p>
+            </div>
+        `;
+        await transporter.sendMail({
+            from: `"Command Center Ops" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: '🚨 URGENT: Secure Command Center Access',
+            html: htmlBody
+        });
+    } catch(err) {
+        console.error("Super Admin Mail Error:", err);
+    }
+};
+
+// @desc    Auth SuperAdmin & GET Master Pin Phase 1
 // @route   POST /api/superadmin/login
 // @access  Public
 const login = async (req, res) => {
@@ -28,17 +62,49 @@ const login = async (req, res) => {
                 return res.status(401).json({ message: 'Account deactivated' });
             }
 
-            res.json({
-                _id: admin._id,
-                email: admin.email,
-                token: generateToken(admin._id),
-            });
+            // Construct 2FA Master Pin
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+            admin.otpAuthCode = otp;
+            admin.otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+            await admin.save();
+
+            sendMasterOtpEmail(admin.email, otp);
+
+            res.status(200).json({ message: 'Master Key Handshake constructed. Secure Transmission sent via SMTP.' });
         } else {
-            res.status(401).json({ message: 'Invalid email or password' });
+            res.status(401).json({ message: 'Invalid master credentials' });
         }
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Server error during login' });
+        res.status(500).json({ message: 'Server fault during decryption' });
+    }
+};
+
+// @desc    Verify SuperAdmin 2FA OTP Phase 2
+// @route   POST /api/superadmin/login-verify
+// @access  Public
+const loginVerify = async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const admin = await SuperAdmin.findOne({ email });
+        
+        if (!admin) return res.status(404).json({ message: 'Admin layer not found.' });
+        if (!admin.isActive) return res.status(403).json({ message: 'Admin layer permanently locked.' });
+        
+        if (admin.otpAuthCode !== otp) return res.status(400).json({ message: 'Invalid 2FA Authorization Key.' });
+        if (new Date() > admin.otpExpiry) return res.status(400).json({ message: 'Authorization Key has decayed and expired.' });
+
+        admin.otpAuthCode = null;
+        admin.otpExpiry = null;
+        await admin.save();
+
+        res.json({
+            _id: admin._id,
+            email: admin.email,
+            token: generateToken(admin._id),
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Fault analyzing OTP packet' });
     }
 };
 
@@ -50,8 +116,6 @@ const getGlobalStats = async (req, res) => {
         const totalTenants = await Tenant.countDocuments();
         const totalUsers = await User.countDocuments();
         const totalBooks = await Book.countDocuments();
-
-        // Calculate active vs inactive tenants
         const activeTenants = await Tenant.countDocuments({ isActive: true });
 
         res.json({
@@ -71,10 +135,8 @@ const getGlobalStats = async (req, res) => {
 // @access  Private (SuperAdmin)
 const getAllTenants = async (req, res) => {
     try {
-        // Find all tenants, sorted by newest first
         const tenants = await Tenant.find().sort({ createdAt: -1 });
 
-        // We might want to attach total users and total books to each tenant for the dashboard
         const enrichedTenants = await Promise.all(tenants.map(async (tenant) => {
             const userCount = await User.countDocuments({ tenantId: tenant._id });
             const bookCount = await Book.countDocuments({ tenantId: tenant._id });
@@ -112,13 +174,11 @@ const createTenant = async (req, res) => {
     }
 
     try {
-        // 1. Check if subdomain already exists
         const tenantExists = await Tenant.findOne({ subdomain });
         if (tenantExists) {
             return res.status(400).json({ message: 'Subdomain already in use' });
         }
 
-        // 2. Create the Tenant
         const tenant = await Tenant.create({
             name,
             subdomain,
@@ -129,7 +189,6 @@ const createTenant = async (req, res) => {
             isActive: true
         });
 
-        // 3. Create the first User (Librarian) directly attached to this new Tenant
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(adminPassword, salt);
 
@@ -138,7 +197,8 @@ const createTenant = async (req, res) => {
             name: adminName,
             email: adminEmail,
             password: hashedPassword,
-            role: 'Librarian' // Explicitly make them a Librarian
+            role: 'Librarian',
+            isVerified: true // ORGANICALLY FIX THE PROVISIONING BUG
         });
 
         res.status(201).json({
@@ -185,28 +245,25 @@ const deleteTenant = async (req, res) => {
         const tenantId = req.params.id;
 
         const tenant = await Tenant.findById(tenantId);
-        if (!tenant) {
-            return res.status(404).json({ message: 'Tenant not found' });
-        }
+        if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
 
-        // Perform Cascading Deletion
         await User.deleteMany({ tenantId });
         await Book.deleteMany({ tenantId });
         await Request.deleteMany({ tenantId });
         await Category.deleteMany({ tenantId });
 
-        // Finally delete the tenant record
         await Tenant.findByIdAndDelete(tenantId);
 
-        res.json({ message: `Tenant '${tenant.name}' and all associated data have been permanently deleted.` });
+        res.json({ message: `Library '${tenant.name}' and all associated cloud data permanently detonated.` });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: 'Error deleting tenant' });
+        res.status(500).json({ message: 'Error orchestrating global deletion' });
     }
 };
 
 module.exports = {
     login,
+    loginVerify,
     getGlobalStats,
     getAllTenants,
     createTenant,
