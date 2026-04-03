@@ -40,7 +40,24 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Database Connection
-connectDB();
+connectDB().then(async () => {
+    // Dynamic Cloud Seeder
+    try {
+        const SuperAdmin = require('./models/SuperAdmin');
+        const adminCount = await SuperAdmin.countDocuments();
+        if (adminCount === 0) {
+            const admin = new SuperAdmin({
+                email: 'smartlib18@gmail.com',
+                password: 'Password123!',
+                isActive: true
+            });
+            await admin.save();
+            console.log('Global Master SuperAdmin auto-seeded into cloud database.');
+        }
+    } catch(err) {
+        console.error('Auto-seeding bypassed:', err.message);
+    }
+});
 
 // --- Global Super Admin Router ---
 // Must be mounted BEFORE attachTenant to bypass tenant-isolation sandboxing
