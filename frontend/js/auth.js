@@ -1,22 +1,62 @@
 const loginForm = document.getElementById('loginForm');
 const registerForm = document.getElementById('registerForm');
+const registerVerifyForm = document.getElementById('registerVerifyForm');
+const loginOtpRequestForm = document.getElementById('loginOtpRequestForm');
+const loginOtpVerifyForm = document.getElementById('loginOtpVerifyForm');
+
 const showRegisterBtn = document.getElementById('showRegister');
 const showLoginBtn = document.getElementById('showLogin');
+const showOtpLoginBtn = document.getElementById('showOtpLogin');
+const showLoginFromOtpReq = document.getElementById('showLoginFromOtpReq');
 
-// Toggle Forms
+let tempEmail = '';
+let tempSubdomain = '';
+
+// Helper to Hide All Forms
+const hideAllForms = () => {
+    loginForm.classList.add('hidden');
+    registerForm.classList.add('hidden');
+    registerVerifyForm.classList.add('hidden');
+    loginOtpRequestForm.classList.add('hidden');
+    loginOtpVerifyForm.classList.add('hidden');
+};
+
 showRegisterBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    loginForm.classList.add('hidden');
+    hideAllForms();
     registerForm.classList.remove('hidden');
 });
 
 showLoginBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    registerForm.classList.add('hidden');
+    hideAllForms();
     loginForm.classList.remove('hidden');
 });
 
-// Register
+showOtpLoginBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    hideAllForms();
+    loginOtpRequestForm.classList.remove('hidden');
+});
+
+showLoginFromOtpReq.addEventListener('click', (e) => {
+    e.preventDefault();
+    hideAllForms();
+    loginForm.classList.remove('hidden');
+});
+
+// Helper for Session Storage
+const handleSessionSuccess = (data, subdomain) => {
+    localStorage.setItem('token', data.token);
+    localStorage.setItem('role', data.role);
+    localStorage.setItem('name', data.name);
+    localStorage.setItem('userId', data._id);
+    localStorage.setItem('subdomain', subdomain || 'default');
+    if (data.role === 'Librarian') window.location.href = 'dashboard-librarian.html';
+    else window.location.href = 'dashboard-member.html';
+};
+
+// 1. Registration Request
 registerForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = document.getElementById('regName').value;
@@ -25,31 +65,8 @@ registerForm.addEventListener('submit', async (e) => {
     const role = document.getElementById('regRole').value;
     const subdomain = document.getElementById('regSubdomain').value.trim();
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-
-    if (!emailRegex.test(email)) {
-        if(typeof showCustomAlert === 'function') {
-            await showCustomAlert('Invalid Email', 'Please provide a valid email address with a domain (e.g. user@example.com)', false);
-        } else {
-            alert('Please provide a valid email address with a domain (e.g. user@example.com)');
-        }
-        return;
-    }
-
-    if (!passwordRegex.test(password)) {
-        if(typeof showCustomAlert === 'function') {
-            await showCustomAlert('Weak Password', 'Password must be at least 8 chars long, contain 1 number, 1 uppercase letter, and 1 special character (@$!%*?&).', false);
-        } else {
-            alert('Password must be at least 8 chars long, contain 1 number, 1 uppercase letter, and 1 special character (@$!%*?&).');
-        }
-        return;
-    }
-
     const headers = { 'Content-Type': 'application/json' };
-    if (subdomain) {
-        headers['x-tenant-subdomain'] = subdomain;
-    }
+    if (subdomain) headers['x-tenant-subdomain'] = subdomain;
 
     try {
         const res = await fetch(`${API_URL}/auth/register`, {
@@ -57,30 +74,41 @@ registerForm.addEventListener('submit', async (e) => {
             headers: headers,
             body: JSON.stringify({ name, email, password, role })
         });
-        if (!res.ok) {
-            const text = await res.text();
-            try {
-                const data = JSON.parse(text);
-                alert(data.message);
-            } catch (e) {
-                console.error('Server Error:', text);
-                alert('Server Error (Check Console): ' + text.substring(0, 100));
-            }
-            return;
-        }
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
 
-        // Save tenant subdomain
-        localStorage.setItem('subdomain', subdomain || 'default');
-
-        alert('Registration successful! Please login.');
-        registerForm.classList.add('hidden');
-        loginForm.classList.remove('hidden');    } catch (err) {
-        console.error(err);
-        alert('Network/Code Error: ' + (err.message || 'Unknown error'));
+        tempEmail = email;
+        tempSubdomain = subdomain;
+        hideAllForms();
+        registerVerifyForm.classList.remove('hidden');
+        alert('Check your inbox! We sent you a 6-digit confirmation pin.');
+    } catch (err) {
+        alert('Error: ' + err.message);
     }
 });
 
-// Login
+// 2. Registration Verification
+registerVerifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otp = document.getElementById('regVerifyOtp').value.trim();
+    const headers = { 'Content-Type': 'application/json' };
+    if (tempSubdomain) headers['x-tenant-subdomain'] = tempSubdomain;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/register-verify`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ email: tempEmail, otp })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
+        handleSessionSuccess(data, tempSubdomain);
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+});
+
+// 3. Password Login
 loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
@@ -88,9 +116,7 @@ loginForm.addEventListener('submit', async (e) => {
     const subdomain = document.getElementById('loginSubdomain').value.trim();
 
     const headers = { 'Content-Type': 'application/json' };
-    if (subdomain) {
-        headers['x-tenant-subdomain'] = subdomain;
-    }
+    if (subdomain) headers['x-tenant-subdomain'] = subdomain;
 
     try {
         const res = await fetch(`${API_URL}/auth/login`, {
@@ -98,36 +124,59 @@ loginForm.addEventListener('submit', async (e) => {
             headers: headers,
             body: JSON.stringify({ email, password })
         });
-        if (!res.ok) {
-            const text = await res.text();
-            try {
-                const data = JSON.parse(text);
-                alert(data.message);
-            } catch (e) {
-                console.error('Server Error:', text);
-                alert('Server Error (Check Console): ' + text.substring(0, 100));
-            }
-            return;
-        }
-
         const data = await res.json();
-
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('role', data.role);
-        localStorage.setItem('name', data.name);
-        localStorage.setItem('userId', data._id);
-
-        // Save tenant subdomain for subsequent API calls in local testing
-        localStorage.setItem('subdomain', subdomain || 'default');
-
-        if (data.role === 'Librarian') {
-            window.location.href = 'dashboard-librarian.html';
-        } else {
-            window.location.href = 'dashboard-member.html';
-        }
-
+        if (!res.ok) return alert(data.message);
+        handleSessionSuccess(data, subdomain);
     } catch (err) {
-        console.error(err);
-        alert('Network/Code Error: ' + (err.message || 'Unknown error'));
+        alert('Error: ' + err.message);
+    }
+});
+
+// 4. Passwordless Login OTP Request
+loginOtpRequestForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('otpRequestEmail').value;
+    const subdomain = document.getElementById('otpSubdomain').value.trim();
+
+    const headers = { 'Content-Type': 'application/json' };
+    if (subdomain) headers['x-tenant-subdomain'] = subdomain;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/login-otp-request`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
+
+        tempEmail = email;
+        tempSubdomain = subdomain;
+        hideAllForms();
+        loginOtpVerifyForm.classList.remove('hidden');
+        alert('A precise 6-digit login code has been sent directly to your email inbox.');
+    } catch (err) {
+        alert('Error: ' + err.message);
+    }
+});
+
+// 5. Passwordless Login OTP Verify
+loginOtpVerifyForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const otp = document.getElementById('loginVerifyOtp').value.trim();
+    const headers = { 'Content-Type': 'application/json' };
+    if (tempSubdomain) headers['x-tenant-subdomain'] = tempSubdomain;
+
+    try {
+        const res = await fetch(`${API_URL}/auth/login-otp-verify`, {
+            method: 'POST',
+            headers: headers,
+            body: JSON.stringify({ email: tempEmail, otp })
+        });
+        const data = await res.json();
+        if (!res.ok) return alert(data.message);
+        handleSessionSuccess(data, tempSubdomain);
+    } catch (err) {
+        alert('Error: ' + err.message);
     }
 });

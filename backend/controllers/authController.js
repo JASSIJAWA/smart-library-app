@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const nodemailer = require('nodemailer');
 
 // Generate JWT
 const generateToken = (id) => {
@@ -9,7 +10,42 @@ const generateToken = (id) => {
     });
 };
 
-// @desc    Register new user
+// Helper Email Dispatcher for Auth
+const sendOtpEmail = async (email, name, otp, type = 'Verification') => {
+    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+        console.warn("SMTP Credentials missing, bypassing email dispatch.");
+        return;
+    }
+    try {
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
+        });
+        
+        let subject = type === 'Verification' ? '🔐 Library Account Verification' : '🔐 Library Secure Login Code';
+        let htmlBody = `
+            <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e2e8f0; padding: 30px; border-radius: 12px; background: #ffffff;">
+                <h2 style="color: #00cc99; margin-top: 0; font-size: 24px;">${type === 'Verification' ? 'Verify Your Registration' : 'Secure Login Request'}</h2>
+                <p style="color: #4a5568; font-size: 16px;">Hi <b>${name}</b>,</p>
+                <p style="color: #4a5568; font-size: 16px;">Please use the following 6-digit Security Pin to ${type === 'Verification' ? 'complete your registration' : 'log into your account'}:</p>
+                <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 32px; font-weight: 800; letter-spacing: 8px; color: #1e293b; margin: 25px 0; border-radius: 8px; border: 1px dashed #cbd5e1;">
+                    ${otp}
+                </div>
+                <p style="color: #718096; font-size: 14px; font-style: italic;">Note: This code expires in 10 minutes. Library personnel will never ask for this code.</p>
+            </div>
+        `;
+        await transporter.sendMail({
+            from: `"Smart Library Dispatch" <${process.env.EMAIL_USER}>`,
+            to: email,
+            subject: subject,
+            html: htmlBody
+        });
+    } catch(err) {
+        console.error("[Email Auth] Sending error:", err);
+    }
+};
+
+// @desc    Register new user (Initiates OTP Sandbox)
 // @route   POST /api/auth/register
 // @access  Public
 const registerUser = async (req, res) => {
@@ -19,7 +55,6 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: 'Please add all fields' });
     }
 
-    // Strong Validator Regex
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 
@@ -31,49 +66,86 @@ const registerUser = async (req, res) => {
         return res.status(400).json({ message: 'Password must be at least 8 characters long, contain at least one number, one uppercase letter, and one special character (@$!%*?&)' });
     }
 
-    // Check if user exists within this specific tenant
-    const userExists = await User.findOne({ email, tenantId: req.tenant._id });
+    let user = await User.findOne({ email, tenantId: req.tenant._id });
 
-    if (userExists) {
-        return res.status(400).json({ message: 'User already exists' });
+    if (user) {
+        // If they already exist but aren't verified, let them try registering again to resend OTP
+        if (user.isVerified) {
+            return res.status(400).json({ message: 'User already exists and is verified. Please log in.' });
+        }
     }
 
-    // Hash password
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create user scoped exclusively to this tenant
-    const user = await User.create({
-        tenantId: req.tenant._id,
-        name,
-        email,
-        password: hashedPassword,
-        role: role || 'Member'
-    });
-
     if (user) {
-        res.status(201).json({
-            _id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role,
-            token: generateToken(user._id),
-        });
+        user.name = name;
+        user.password = hashedPassword;
+        user.role = role || 'Member';
+        user.otpAuthCode = otp;
+        user.otpExpiry = otpExpiry;
+        await user.save();
     } else {
-        res.status(400).json({ message: 'Invalid user data' });
+        user = await User.create({
+            tenantId: req.tenant._id,
+            name,
+            email,
+            password: hashedPassword,
+            role: role || 'Member',
+            isVerified: false,
+            otpAuthCode: otp,
+            otpExpiry: otpExpiry
+        });
     }
+
+    // Dispatch Email Asynchronously
+    sendOtpEmail(user.email, user.name, otp, 'Verification');
+
+    res.status(200).json({ message: 'OTP Sent successfully. Please verify to complete registration.', email: user.email });
 };
 
-// @desc    Authenticate a user
+// @desc    Verify Registration OTP
+// @route   POST /api/auth/register-verify
+const verifyRegistration = async (req, res) => {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email, tenantId: req.tenant._id });
+    
+    if (!user) return res.status(404).json({ message: 'Registration not found' });
+    if (user.isVerified) return res.status(400).json({ message: 'Already verified' });
+    if (user.otpAuthCode !== otp) return res.status(400).json({ message: 'Invalid OTP code' });
+    if (new Date() > user.otpExpiry) return res.status(400).json({ message: 'OTP has expired. Please register again.' });
+
+    user.isVerified = true;
+    user.otpAuthCode = null;
+    user.otpExpiry = null;
+    await user.save();
+
+    res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+    });
+};
+
+// @desc    Authenticate a user (Standard Password)
 // @route   POST /api/auth/login
 // @access  Public
 const loginUser = async (req, res) => {
     const { email, password } = req.body;
-
-    // Check for user email scoped exclusively to this tenant
     const user = await User.findOne({ email, tenantId: req.tenant._id });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (!user) return res.status(400).json({ message: 'Invalid credentials' });
+    
+    if (!user.isVerified) {
+        return res.status(403).json({ message: 'Account not verified. Please register again to securely verify your email.' });
+    }
+
+    if (await bcrypt.compare(password, user.password)) {
         res.json({
             _id: user.id,
             name: user.name,
@@ -86,14 +158,61 @@ const loginUser = async (req, res) => {
     }
 };
 
+// @desc    Request Passwordless Login OTP
+// @route   POST /api/auth/login-otp-request
+const requestLoginOtp = async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email, tenantId: req.tenant._id });
+
+    if (!user) return res.status(404).json({ message: 'No account found with this email.' });
+    if (!user.isVerified) return res.status(403).json({ message: 'Account is unverified.' });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.otpAuthCode = otp;
+    user.otpExpiry = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    sendOtpEmail(user.email, user.name, otp, 'Login');
+
+    res.status(200).json({ message: 'Login code dispatched to your email.' });
+};
+
+// @desc    Verify Passwordless Login OTP
+// @route   POST /api/auth/login-otp-verify
+const verifyLoginOtp = async (req, res) => {
+    const { email, otp } = req.body;
+    const user = await User.findOne({ email, tenantId: req.tenant._id });
+    
+    if (!user) return res.status(404).json({ message: 'Account not found' });
+    if (!user.isVerified) return res.status(403).json({ message: 'Account unverified' });
+    if (user.otpAuthCode !== otp) return res.status(400).json({ message: 'Invalid or incorrect code' });
+    if (new Date() > user.otpExpiry) return res.status(400).json({ message: 'Security code has expired.' });
+
+    user.otpAuthCode = null;
+    user.otpExpiry = null;
+    await user.save();
+
+    res.json({
+        _id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        token: generateToken(user._id),
+    });
+};
+
 // @desc    Get user data
 // @route   GET /api/auth/me
 // @access  Private
 const getMe = async (req, res) => {
     res.status(200).json(req.user);
 };
+
 module.exports = {
     registerUser,
+    verifyRegistration,
     loginUser,
+    requestLoginOtp,
+    verifyLoginOtp,
     getMe
 };

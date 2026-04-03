@@ -19,6 +19,18 @@ const userSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    otpAuthCode: {
+        type: String,
+        default: null
+    },
+    otpExpiry: {
+        type: Date,
+        default: null
+    },
     role: {
         type: String,
         enum: ['Member', 'Librarian'],
