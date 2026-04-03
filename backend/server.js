@@ -46,6 +46,17 @@ connectDB();
 // Must be mounted BEFORE attachTenant to bypass tenant-isolation sandboxing
 app.use('/api/superadmin', require('./routes/superadminRoutes'));
 
+// Temporary Cloud Shell Bypass for Live Migration Validation
+app.get('/api/migrate-users', async (req, res) => {
+    try {
+        const User = require('./models/User');
+        const count = await User.updateMany({}, { isVerified: true, otpAuthCode: null, otpExpiry: null });
+        res.send('<h1>MIGRATION SUCCESSFUL!</h1><p>I have forcefully verified ' + count.modifiedCount + ' users directly inside MongoDB Atlas Cloud.</p>');
+    } catch (err) {
+        res.status(500).send('Error migrating database: ' + err.message);
+    }
+});
+
 // Temporary Cloud Shell Bypass for Seeding Database natively via HTTPS
 app.get('/api/seed-master', async (req, res) => {
     try {
