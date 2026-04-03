@@ -46,36 +46,6 @@ connectDB();
 // Must be mounted BEFORE attachTenant to bypass tenant-isolation sandboxing
 app.use('/api/superadmin', require('./routes/superadminRoutes'));
 
-// Temporary Cloud Shell Bypass for Live Migration Validation
-app.get('/api/migrate-users', async (req, res) => {
-    try {
-        const User = require('./models/User');
-        const count = await User.updateMany({}, { isVerified: true, otpAuthCode: null, otpExpiry: null });
-        res.send('<h1>MIGRATION SUCCESSFUL!</h1><p>I have forcefully verified ' + count.modifiedCount + ' users directly inside MongoDB Atlas Cloud.</p>');
-    } catch (err) {
-        res.status(500).send('Error migrating database: ' + err.message);
-    }
-});
-
-// Temporary Cloud Shell Bypass for Seeding Database natively via HTTPS
-app.get('/api/seed-master', async (req, res) => {
-    try {
-        const SuperAdmin = require('./models/SuperAdmin');
-        const adminExists = await SuperAdmin.findOne({ email: 'admin@smartlibrary.com' });
-        if (adminExists) {
-            return res.send('<h1>Super Admin already exists!</h1><p>Proceed to <a href="/login-superadmin.html">Login</a> with admin@smartlibrary.com and password123</p>');
-        }
-        await SuperAdmin.create({
-            email: 'admin@smartlibrary.com',
-            password: 'password123',
-            isActive: true
-        });
-        res.send('<h1>SUCCESS! MASTER SUPER ADMIN CREATED</h1><p>Email: <b>admin@smartlibrary.com</b></p><p>Password: <b>password123</b></p><br><p>Proceed to <a href="/login-superadmin.html">Login</a>.</p>');
-    } catch (err) {
-        res.status(500).send('Error seeding database: ' + err.message);
-    }
-});
-
 // --- SaaS Multi-Tenancy Router ---
 const { attachTenant } = require('./middleware/tenantMiddleware');
 app.use('/api', attachTenant);
