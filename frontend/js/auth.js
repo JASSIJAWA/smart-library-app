@@ -41,7 +41,11 @@ const updatePublicBranding = async (subdomain) => {
     }
 
     try {
-        const res = await fetch(`${API_URL}/auth/tenant-lookup/${subdomain.trim()}`);
+        const res = await fetch(`${API_URL}/auth/tenant-lookup/${subdomain.trim()}`, {
+            headers: {
+                'x-tenant-subdomain': subdomain.trim()
+            }
+        });
         if (!res.ok) {
             // Keep the previous name if the fetch returns 404 (e.g. they are still typing)
             return;
