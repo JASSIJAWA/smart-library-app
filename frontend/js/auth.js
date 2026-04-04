@@ -27,6 +27,62 @@ const hideAllForms = () => {
     forgotPasswordVerifyForm.classList.add('hidden');
 };
 
+// Handle Dynamic Tenant Branding on Login Page
+let brandTimeout;
+const updatePublicBranding = async (subdomain) => {
+    const brandName = document.getElementById('publicBrandName');
+    const brandLogo = document.getElementById('publicBrandLogo');
+    
+    if (!subdomain || subdomain.trim() === '') {
+        brandName.innerText = 'Smart Library';
+        brandLogo.style.display = 'none';
+        brandLogo.src = '';
+        return;
+    }
+
+    try {
+        const res = await fetch(`${API_URL}/auth/tenant-lookup/${subdomain.trim()}`);
+        if (!res.ok) {
+            // Keep the previous name if the fetch returns 404 (e.g. they are still typing)
+            return;
+        }
+
+        const data = await res.json();
+        brandName.innerText = data.name;
+
+        if (data.logoUrl) {
+            brandLogo.src = data.logoUrl;
+            brandLogo.style.display = 'block';
+        } else {
+            brandLogo.style.display = 'none';
+            brandLogo.src = '';
+        }
+    } catch (err) {
+        // Silently catch network errors without visually altering the UI
+        console.warn("Branding lookup failed:", err);
+    }
+};
+
+const handleSubdomainInput = (e) => {
+    clearTimeout(brandTimeout);
+    brandTimeout = setTimeout(() => {
+        updatePublicBranding(e.target.value);
+    }, 400); // Debounce
+};
+
+const subdomainInputs = [
+    document.getElementById('loginSubdomain'),
+    document.getElementById('regSubdomain'),
+    document.getElementById('otpSubdomain'),
+    document.getElementById('forgotSubdomain')
+];
+
+subdomainInputs.forEach(input => {
+    if (input) {
+        input.addEventListener('input', handleSubdomainInput);
+    }
+});
+
 showRegisterBtn.addEventListener('click', (e) => {
     e.preventDefault();
     hideAllForms();
@@ -76,6 +132,11 @@ const handleSessionSuccess = (data, subdomain) => {
     localStorage.setItem('name', data.name);
     localStorage.setItem('userId', data._id);
     localStorage.setItem('subdomain', subdomain || 'default');
+    if (data.logoUrl) {
+        localStorage.setItem('tenantLogo', data.logoUrl);
+    } else {
+        localStorage.removeItem('tenantLogo');
+    }
     if (data.role === 'Librarian') window.location.href = 'dashboard-librarian.html';
     else window.location.href = 'dashboard-member.html';
 };

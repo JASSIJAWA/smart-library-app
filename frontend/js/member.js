@@ -8,6 +8,15 @@ if (!token || role !== 'Member') {
 
 document.getElementById('userName').innerText = localStorage.getItem('name');
 
+const savedLogo = localStorage.getItem('tenantLogo');
+if (savedLogo) {
+    const logoImg = document.getElementById('navTenantLogo');
+    if (logoImg) {
+        logoImg.src = savedLogo;
+        logoImg.style.display = 'block';
+    }
+}
+
 const logoutBtn = document.getElementById('logoutBtn');
 logoutBtn.addEventListener('click', () => {
     localStorage.clear();

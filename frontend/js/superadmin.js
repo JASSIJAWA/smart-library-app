@@ -198,10 +198,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 try {
+                    const formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('subdomain', subdomain);
+                    formData.append('adminName', adminName);
+                    formData.append('adminEmail', adminEmail);
+                    formData.append('adminPassword', adminPassword);
+                    formData.append('primaryColor', primaryColor);
+                    
+                    const logoFile = document.getElementById('tenantLogo').files[0];
+                    if (logoFile) {
+                        formData.append('logo', logoFile);
+                    }
+
                     const res = await fetch(`${API_URL}/superadmin/tenants`, {
                         method: 'POST',
-                        headers: getSuperAdminHeaders(),
-                        body: JSON.stringify({ name, subdomain, adminName, adminEmail, adminPassword, primaryColor })
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('superAdminToken')}`
+                            // Do NOT set Content-Type to application/json, fetch will auto-set multipart/form-data boundary
+                        },
+                        body: formData
                     });
                     const data = await res.json();
 
@@ -231,10 +247,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const isActive = document.getElementById('editTenantIsActive').checked;
 
                 try {
+                    const formData = new FormData();
+                    formData.append('name', name);
+                    formData.append('subdomain', subdomain);
+                    formData.append('primaryColor', primaryColor);
+                    formData.append('isActive', isActive);
+                    
+                    const logoFile = document.getElementById('editTenantLogo').files[0];
+                    if (logoFile) {
+                        formData.append('logo', logoFile);
+                    }
+
                     const res = await fetch(`${API_URL}/superadmin/tenants/${id}/settings`, {
                         method: 'PUT',
-                        headers: getSuperAdminHeaders(),
-                        body: JSON.stringify({ name, subdomain, primaryColor, isActive })
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('superAdminToken')}`
+                        },
+                        body: formData
                     });
                     const data = await res.json();
 

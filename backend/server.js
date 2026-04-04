@@ -80,6 +80,9 @@ app.use('/api/analytics', require('./routes/analyticsRoutes'));
 // Serve Frontend Static Files
 app.use(express.static(path.join(__dirname, '../frontend')));
 
+// Serve Uploaded Files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Basic Route for API fallback
 app.get('/api', (req, res) => {
     res.send('Library Management System API is running...');

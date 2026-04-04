@@ -249,6 +249,7 @@ const createTenant = async (req, res) => {
             brandingColors: {
                 primary: primaryColor || '#2563eb'
             },
+            logoUrl: req.file ? `/uploads/${req.file.filename}` : '',
             isActive: true
         });
 
@@ -344,7 +345,15 @@ const updateTenantSettings = async (req, res) => {
 
         if (name) tenant.name = name;
         if (primaryColor) tenant.brandingColors.primary = primaryColor;
-        if (typeof isActive === 'boolean') tenant.isActive = isActive;
+        
+        // Handle logo file if uploaded
+        if (req.file) {
+            tenant.logoUrl = `/uploads/${req.file.filename}`;
+        }
+
+        if (typeof isActive === 'boolean' || isActive === 'true' || isActive === 'false') {
+            tenant.isActive = isActive === true || isActive === 'true';
+        }
 
         await tenant.save();
 

@@ -13,6 +13,7 @@ const {
     updateTenantSettings
 } = require('../controllers/superAdminController');
 const { protectSuperAdmin } = require('../middleware/superAdminAuth');
+const upload = require('../middleware/uploadMiddleware');
 
 // Public
 router.post('/login', login);
@@ -25,9 +26,9 @@ router.post('/forgot-password-verify', forgotPasswordVerify);
 // Protected by SuperAdmin JWT
 router.get('/stats', protectSuperAdmin, getGlobalStats);
 router.get('/tenants', protectSuperAdmin, getAllTenants);
-router.post('/tenants', protectSuperAdmin, createTenant);
+router.post('/tenants', protectSuperAdmin, upload.single('logo'), createTenant);
 router.put('/tenants/:id/toggle', protectSuperAdmin, toggleTenantStatus);
-router.put('/tenants/:id/settings', protectSuperAdmin, updateTenantSettings);
+router.put('/tenants/:id/settings', protectSuperAdmin, upload.single('logo'), updateTenantSettings);
 router.delete('/tenants/:id', protectSuperAdmin, deleteTenant);
 
 module.exports = router;

@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const User = require('../models/User');
+const Tenant = require('../models/Tenant');
 const nodemailer = require('nodemailer');
 
 // Generate JWT
@@ -129,6 +130,7 @@ const verifyRegistration = async (req, res) => {
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
+        logoUrl: req.tenant.logoUrl
     });
 };
 
@@ -152,6 +154,7 @@ const loginUser = async (req, res) => {
             email: user.email,
             role: user.role,
             token: generateToken(user._id),
+            logoUrl: req.tenant.logoUrl
         });
     } else {
         res.status(400).json({ message: 'Invalid credentials' });
@@ -198,6 +201,7 @@ const verifyLoginOtp = async (req, res) => {
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
+        logoUrl: req.tenant.logoUrl
     });
 };
 
@@ -277,6 +281,24 @@ const forgotPasswordVerify = async (req, res) => {
     }
 };
 
+// @desc    Get tenant branding details publicly via subdomain
+// @route   GET /api/auth/tenant-lookup/:subdomain
+// @access  Public
+const getTenantLookup = async (req, res) => {
+    try {
+        const subdomain = req.params.subdomain.toLowerCase().trim();
+        const tenant = await Tenant.findOne({ subdomain, isActive: true });
+        
+        if (!tenant) {
+            return res.status(404).json({ message: 'Tenant not found or inactive.' });
+        }
+        res.json({ name: tenant.name, logoUrl: tenant.logoUrl });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server fault mapping tenant code.' });
+    }
+};
+
 module.exports = {
     registerUser,
     verifyRegistration,
@@ -285,5 +307,6 @@ module.exports = {
     verifyLoginOtp,
     getMe,
     forgotPasswordRequest,
-    forgotPasswordVerify
+    forgotPasswordVerify,
+    getTenantLookup
 };

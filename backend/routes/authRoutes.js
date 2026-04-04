@@ -8,11 +8,13 @@ const {
     verifyLoginOtp,
     getMe,
     forgotPasswordRequest,
-    forgotPasswordVerify
+    forgotPasswordVerify,
+    getTenantLookup
 } = require('../controllers/authController');
 const { protect } = require('../middleware/authMiddleware');
 
 // Public
+router.get('/tenant-lookup/:subdomain', getTenantLookup);
 router.post('/register', registerUser);
 router.post('/register-verify', verifyRegistration);
 
