@@ -136,6 +136,11 @@ const handleSessionSuccess = (data, subdomain) => {
     localStorage.setItem('name', data.name);
     localStorage.setItem('userId', data._id);
     localStorage.setItem('subdomain', subdomain || 'default');
+    if (data.tenantName) {
+        localStorage.setItem('tenantName', data.tenantName);
+    } else {
+        localStorage.removeItem('tenantName');
+    }
     if (data.logoUrl) {
         localStorage.setItem('tenantLogo', data.logoUrl);
     } else {

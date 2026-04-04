@@ -142,7 +142,8 @@ const verifyRegistration = async (req, res) => {
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
-        logoUrl: req.tenant.logoUrl
+        logoUrl: req.tenant.logoUrl,
+        tenantName: req.tenant.name
     });
 };
 
@@ -166,7 +167,8 @@ const loginUser = async (req, res) => {
             email: user.email,
             role: user.role,
             token: generateToken(user._id),
-            logoUrl: req.tenant.logoUrl
+            logoUrl: req.tenant.logoUrl,
+        tenantName: req.tenant.name
         });
     } else {
         res.status(400).json({ message: 'Invalid credentials' });
@@ -213,7 +215,8 @@ const verifyLoginOtp = async (req, res) => {
         email: user.email,
         role: user.role,
         token: generateToken(user._id),
-        logoUrl: req.tenant.logoUrl
+        logoUrl: req.tenant.logoUrl,
+        tenantName: req.tenant.name
     });
 };
 

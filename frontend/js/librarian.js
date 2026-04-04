@@ -17,6 +17,12 @@ if (savedLogo) {
     }
 }
 
+const savedBrand = localStorage.getItem('tenantName');
+if (savedBrand) {
+    const brandTexts = document.querySelectorAll('.navbar-brand-text');
+    brandTexts.forEach(el => el.innerText = savedBrand);
+}
+
 const logoutBtn = document.getElementById('logoutBtn');
 logoutBtn.addEventListener('click', () => {
     localStorage.clear();
