@@ -17,16 +17,11 @@ const generateToken = (id) => {
 
 // Master Notification NodeMailer
 const sendMasterOtpEmail = async (email, otp) => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.warn("SMTP missing, logging super admin OTP: ", otp);
+    if (!process.env.GOOGLE_SCRIPT_URL) {
+        console.warn("Google Script Proxy URL missing, logging super admin OTP: ", otp);
         return;
     }
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
-        
         let htmlBody = `
             <div style="font-family: 'Courier New', monospace; max-width: 600px; margin: 0 auto; border: 2px solid #ef4444; padding: 30px; border-radius: 4px; background: #000; color: #fff;">
                 <h2 style="color: #ef4444; margin-top: 0; font-size: 24px; text-transform: uppercase;">Global Command Center 2FA</h2>
@@ -37,12 +32,21 @@ const sendMasterOtpEmail = async (email, otp) => {
                 <p style="color: #666; font-size: 12px;">AUTHORIZATION MATRIX EXPIRES IN 10 MINUTES.</p>
             </div>
         `;
-        await transporter.sendMail({
-            from: `"Command Center Ops" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: '🚨 URGENT: Secure Command Center Access',
-            html: htmlBody
+        const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                to: email,
+                subject: '🚨 URGENT: Secure Command Center Access',
+                html: htmlBody
+            })
         });
+
+        const result = await response.json();
+        if (result.status === 'error') {
+            console.error('[Email Auth] Super Admin Google Proxy Error:', result.message);
+        } else {
+            console.log(`[Email Auth] Command Center OTP relayed to ${email}`);
+        }
     } catch(err) {
         console.error("Super Admin Mail Error:", err);
     }

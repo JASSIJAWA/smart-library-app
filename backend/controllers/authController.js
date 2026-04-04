@@ -13,15 +13,17 @@ const generateToken = (id) => {
 
 // Helper Email Dispatcher for Auth
 const sendOtpEmail = async (email, name, otp, type = 'Verification') => {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        console.warn("SMTP Credentials missing, bypassing email dispatch.");
+    if (!process.env.GOOGLE_SCRIPT_URL) {
+        console.warn("Proxy URL missing, bypassing email dispatch.");
+        console.log(`\n=============================================`);
+        console.log(`🔑 SECURE OTP GENERATED FOR ${email}: [ ${otp} ]`);
+        console.log(`=============================================\n`);
         return;
     }
     try {
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
-        });
+        console.log(`\n=============================================`);
+        console.log(`🔑 SECURE OTP GENERATED FOR ${email}: [ ${otp} ]`);
+        console.log(`=============================================\n`);
         
         let subject = type === 'Verification' ? '🔐 Library Account Verification' : '🔐 Library Secure Login Code';
         let htmlBody = `
@@ -35,14 +37,24 @@ const sendOtpEmail = async (email, name, otp, type = 'Verification') => {
                 <p style="color: #718096; font-size: 14px; font-style: italic;">Note: This code expires in 10 minutes. Library personnel will never ask for this code.</p>
             </div>
         `;
-        await transporter.sendMail({
-            from: `"Smart Library Dispatch" <${process.env.EMAIL_USER}>`,
-            to: email,
-            subject: subject,
-            html: htmlBody
+
+        const response = await fetch(process.env.GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({
+                to: email,
+                subject: subject,
+                html: htmlBody
+            })
         });
+
+        const result = await response.json();
+        if (result.status === 'error') {
+            console.error('[Email Auth] Proxy Error:', result.message);
+        } else {
+            console.log(`[Email Auth] Proxy dispatched to ${email}`);
+        }
     } catch(err) {
-        console.error("[Email Auth] Sending error:", err);
+        console.error("[Email Auth] Fetch error:", err);
     }
 };
 

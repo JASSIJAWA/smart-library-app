@@ -55,17 +55,9 @@ const createRequest = async (req, res) => {
         // Broadcast to Librarians (and potentially the user if they had multiple tabs)
         if (io) io.emit('new_request');
 
-        // Email Dispatcher Integration
-        const nodemailer = require('nodemailer');
-        if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+        // Email Dispatcher Integration using Google Apps Script API
+        if (process.env.GOOGLE_SCRIPT_URL) {
             try {
-                const transporter = nodemailer.createTransport({
-                    service: 'gmail',
-                    auth: {
-                        user: process.env.EMAIL_USER,
-                        pass: process.env.EMAIL_PASS
-                    }
-                });
 
                 let emailSubject = '';
                 let emailHtml = '';
@@ -101,15 +93,20 @@ const createRequest = async (req, res) => {
                 }
 
                 if (emailSubject) {
-                    const mailOptions = {
-                        from: `"Smart Library Dispatch" <${process.env.EMAIL_USER}>`,
-                        to: req.user.email,
-                        subject: emailSubject,
-                        html: emailHtml
-                    };
-                    transporter.sendMail(mailOptions)
-                        .then(() => console.log(`[Email] Dispatched to ${req.user.email}`))
-                        .catch(err => console.error("[Email] Sending failed:", err));
+                    fetch(process.env.GOOGLE_SCRIPT_URL, {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            to: req.user.email,
+                            subject: emailSubject,
+                            html: emailHtml
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(result => {
+                        if (result.status === 'error') console.error('[Email] Google Proxy HTTP Error:', result.message);
+                        else console.log(`[Email] Google Proxy dispatched email to ${req.user.email}`);
+                    })
+                    .catch(err => console.error("[Email] Sending failed:", err));
                 }
             } catch (mailError) {
                 console.error("[Email] Transport configuration error:", mailError);
