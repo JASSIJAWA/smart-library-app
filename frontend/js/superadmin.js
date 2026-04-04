@@ -219,6 +219,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         }
+
+        const settingsForm = document.getElementById('tenantSettingsForm');
+        if (settingsForm) {
+            settingsForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('editTenantId').value;
+                const name = document.getElementById('editTenantName').value;
+                const subdomain = document.getElementById('editTenantSubdomain').value;
+                const primaryColor = document.getElementById('editTenantPrimaryColor').value;
+                const isActive = document.getElementById('editTenantIsActive').checked;
+
+                try {
+                    const res = await fetch(`${API_URL}/superadmin/tenants/${id}/settings`, {
+                        method: 'PUT',
+                        headers: getSuperAdminHeaders(),
+                        body: JSON.stringify({ name, subdomain, primaryColor, isActive })
+                    });
+                    const data = await res.json();
+
+                    if (res.ok) {
+                        document.getElementById('tenantSettingsModal').classList.add('hidden');
+                        await showCustomAlert('Settings Saved', data.message, true);
+                        loadGlobalStats();
+                        loadTenantsGrid();
+                    } else {
+                        showCustomAlert('Error', data.message || 'Failed to update settings', false);
+                    }
+                } catch (err) {
+                    showCustomAlert('System Error', 'Could not communicate with the API.', false);
+                }
+            });
+        }
     }
 });
 
@@ -372,10 +404,13 @@ function superAdminLogout() {
     window.location.href = 'login-superadmin.html';
 }
 
+let currentSelectedTenant = null;
+
 // View Tenant Details
 function showTenantDetails(encodedTenant) {
     try {
         const tenant = JSON.parse(decodeURIComponent(encodedTenant));
+        currentSelectedTenant = tenant;
         document.getElementById('detailName').textContent = tenant.name;
         document.getElementById('detailAdminName').textContent = tenant.adminName || 'Unknown';
         document.getElementById('detailAdminEmail').textContent = tenant.adminEmail || 'Unknown';
@@ -394,4 +429,22 @@ function showTenantDetails(encodedTenant) {
     } catch (e) {
         console.error("Failed to parse tenant for details modal", e);
     }
+}
+
+function openTenantSettings() {
+    if (!currentSelectedTenant) return;
+
+    document.getElementById('editTenantId').value = currentSelectedTenant._id;
+    document.getElementById('editTenantName').value = currentSelectedTenant.name;
+    document.getElementById('editTenantSubdomain').value = currentSelectedTenant.subdomain;
+
+    let primaryColor = '#2563eb';
+    if (currentSelectedTenant.brandingColors && currentSelectedTenant.brandingColors.primary) {
+        primaryColor = currentSelectedTenant.brandingColors.primary;
+    }
+    document.getElementById('editTenantPrimaryColor').value = primaryColor;
+    document.getElementById('editTenantIsActive').checked = currentSelectedTenant.isActive;
+
+    document.getElementById('tenantDetailsModal').classList.add('hidden');
+    document.getElementById('tenantSettingsModal').classList.remove('hidden');
 }

@@ -324,6 +324,37 @@ const deleteTenant = async (req, res) => {
     }
 };
 
+// @desc    Update Tenant Settings
+// @route   PUT /api/superadmin/tenants/:id/settings
+// @access  Private (SuperAdmin)
+const updateTenantSettings = async (req, res) => {
+    const { name, subdomain, primaryColor, isActive } = req.body;
+    try {
+        const tenant = await Tenant.findById(req.params.id);
+        if (!tenant) return res.status(404).json({ message: 'Tenant not found' });
+        
+        // If changing subdomain, check for collision
+        if (subdomain && subdomain !== tenant.subdomain) {
+            const exists = await Tenant.findOne({ subdomain });
+            if (exists) {
+                return res.status(400).json({ message: 'Subdomain is already in use by another tenant.' });
+            }
+            tenant.subdomain = subdomain;
+        }
+
+        if (name) tenant.name = name;
+        if (primaryColor) tenant.brandingColors.primary = primaryColor;
+        if (typeof isActive === 'boolean') tenant.isActive = isActive;
+
+        await tenant.save();
+
+        res.json({ message: 'Library Settings Updated Successfully', tenant });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error updating tenant settings' });
+    }
+};
+
 module.exports = {
     login,
     loginVerify,
@@ -333,5 +364,6 @@ module.exports = {
     toggleTenantStatus,
     deleteTenant,
     forgotPasswordRequest,
-    forgotPasswordVerify
+    forgotPasswordVerify,
+    updateTenantSettings
 };

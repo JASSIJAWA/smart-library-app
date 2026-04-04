@@ -9,7 +9,8 @@ const {
     toggleTenantStatus,
     deleteTenant,
     forgotPasswordRequest,
-    forgotPasswordVerify
+    forgotPasswordVerify,
+    updateTenantSettings
 } = require('../controllers/superAdminController');
 const { protectSuperAdmin } = require('../middleware/superAdminAuth');
 
@@ -26,6 +27,7 @@ router.get('/stats', protectSuperAdmin, getGlobalStats);
 router.get('/tenants', protectSuperAdmin, getAllTenants);
 router.post('/tenants', protectSuperAdmin, createTenant);
 router.put('/tenants/:id/toggle', protectSuperAdmin, toggleTenantStatus);
+router.put('/tenants/:id/settings', protectSuperAdmin, updateTenantSettings);
 router.delete('/tenants/:id', protectSuperAdmin, deleteTenant);
 
 module.exports = router;

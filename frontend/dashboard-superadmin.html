@@ -6,34 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SaaS Global Architecture</title>
     <!-- Use the existing global styling -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme.js"></script>
     <style>
-        .global-card {
-            background: var(--bg-dark);
-            border: 1px solid var(--card-border);
-            padding: 1.5rem;
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        }
-
-        .global-card h3 {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .global-card p {
-            color: var(--primary);
-            font-size: 2.5rem;
-            font-weight: 700;
-        }
-
         .tenant-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -42,17 +17,19 @@
         }
 
         .tenant-card {
-            background: var(--bg-dark);
+            background: var(--card-bg);
             border: 1px solid var(--card-border);
-            border-radius: 12px;
+            border-radius: 8px; /* Classic */
             padding: 1.5rem;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: var(--transition);
             position: relative;
+            box-shadow: var(--glass-shadow);
         }
 
         .tenant-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 204, 153, 0.1);
+            transform: translateY(-4px);
+            border-color: var(--primary);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
 
         .tenant-badge {
@@ -66,13 +43,13 @@
         }
 
         .tenant-badge.active {
-            background: rgba(0, 204, 153, 0.1);
-            color: var(--primary);
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--success);
         }
 
         .tenant-badge.suspended {
-            background: rgba(220, 53, 69, 0.1);
-            color: #dc3545;
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
         }
 
         .tenant-stats {
@@ -89,9 +66,10 @@
 
         .t-stat span {
             display: block;
+            font-family: 'Playfair Display', serif;
             font-size: 1.5rem;
             font-weight: 600;
-            color: var(--text-color);
+            color: var(--primary);
         }
 
         .t-stat small {
@@ -109,17 +87,18 @@
 
 <body>
     <!-- Super Admin Navigation -->
-    <nav class="navbar" style="border-bottom: 2px solid var(--primary);">
-        <div class="nav-brand">
-            <svg style="width: 28px; height: 28px; margin-right: 0.5rem; color: var(--primary);" fill="none"
+    <nav>
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+            <svg style="width: 28px; height: 28px; color: var(--primary);" fill="none"
                 stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
                 </path>
             </svg>
-            SaaS Command Center
+            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text">Command Center</h2>
+            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Super Admin</span>
         </div>
-        <div class="nav-links">
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
             <button class="btn btn-primary" onclick="openProvisionModal()"
                 style="display: flex; align-items: center; gap: 0.5rem;">
                 <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -130,37 +109,36 @@
             </button>
             <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn"
                 title="Toggle Light/Dark Theme"></button>
-            <button class="btn btn-danger btn-logout" onclick="superAdminLogout()">Disconnect</button>
+            <a href="#" id="logoutBtn" class="logout-link" onclick="superAdminLogout()">Disconnect</a>
         </div>
     </nav>
 
-    <div class="content" style="max-width: 1400px; margin: 0 auto; padding: 2rem;">
+    <div class="container">
 
         <!-- Global Analytics Grid -->
-        <h2 style="font-size: 1.4rem; margin-bottom: 1rem; color: var(--text-color);">Platform Yield Aggregation</h2>
-        <div
-            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 3rem;">
-            <div class="global-card">
-                <h3>Total Tenants</h3>
-                <p id="statTotalTenants">-</p>
+        <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--text-main);">Platform Yield Aggregation</h2>
+        <div class="card-grid" style="margin-bottom: 3rem;">
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalTenants">-</div>
+                <div class="stat-label">Total Tenants</div>
             </div>
-            <div class="global-card">
-                <h3>Active Tenants</h3>
-                <p id="statActiveTenants" style="color: #17a2b8;">-</p>
+            <div class="stat-card">
+                <div class="stat-value" id="statActiveTenants" style="color: var(--success);">-</div>
+                <div class="stat-label">Active Tenants</div>
             </div>
-            <div class="global-card">
-                <h3>Total Network Users</h3>
-                <p id="statTotalUsers" style="color: #ffc107;">-</p>
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalUsers" style="color: var(--warning);">-</div>
+                <div class="stat-label">Total Network Users</div>
             </div>
-            <div class="global-card">
-                <h3>Total Stored Books</h3>
-                <p id="statTotalBooks" style="color: #28a745;">-</p>
+            <div class="stat-card">
+                <div class="stat-value" id="statTotalBooks" style="color: var(--primary);">-</div>
+                <div class="stat-label">Total Stored Books</div>
             </div>
         </div>
 
         <!-- Tenants Grid -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <h2 style="font-size: 1.4rem; color: var(--text-color);">Library Instances Matrix</h2>
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.6rem; color: var(--text-main); margin: 0;">Library Instances Matrix</h2>
             <button class="btn"
                 style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
                 onclick="loadTenantsGrid()">Refresh Matrix</button>
@@ -262,8 +240,50 @@
                 </div>
             </div>
 
-            <button class="btn btn-primary" style="width: 100%;"
-                onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">Close Details</button>
+            <div style="display: flex; gap: 1rem;">
+                <button class="btn btn-primary" style="flex: 1;" onclick="openTenantSettings()">Edit Settings</button>
+                <button class="btn" style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
+                    onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Tenant Settings Modal -->
+    <div id="tenantSettingsModal" class="modal hidden">
+        <div class="modal-content glass-panel" style="max-width: 500px; width: 90%;">
+            <button class="close-btn" onclick="document.getElementById('tenantSettingsModal').classList.add('hidden'); document.getElementById('tenantDetailsModal').classList.remove('hidden');"
+                style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
+            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">Edit Tenant Settings</h3>
+
+            <form id="tenantSettingsForm">
+                <input type="hidden" id="editTenantId">
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Institution Name</label>
+                    <input type="text" id="editTenantName" required style="width: 100%;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Secure Subdomain</label>
+                    <div style="display: flex; align-items: center;">
+                        <input type="text" id="editTenantSubdomain" required style="width: 100%; border-top-right-radius: 0; border-bottom-right-radius: 0;">
+                        <span style="background: var(--bg-deep); padding: 0.8rem; border: 1px solid var(--card-border); border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px; color: var(--text-muted);">.loca.lt</span>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 1.5rem;">
+                    <label>Primary Brand Color</label>
+                    <input type="color" id="editTenantPrimaryColor" style="height: 50px; padding: 0.2rem; cursor: pointer; width: 100%;">
+                </div>
+                
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" id="editTenantIsActive" style="width: 20px; height: 20px;">
+                        <span>Account Active / Not Suspended</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">Save Changes</button>
+            </form>
         </div>
     </div>
 
