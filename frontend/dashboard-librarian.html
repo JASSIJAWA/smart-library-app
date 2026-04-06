@@ -170,7 +170,7 @@
                             onchange="processCsvImport(event)">
                         <button type="button" class="btn"
                             style="background: transparent; border: 1px solid var(--secondary); color: var(--secondary);"
-                            onclick="document.getElementById('csvFileInput').click()">
+                            onclick="document.getElementById('bulkImportModal').classList.remove('hidden')">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" style="margin-right: 0.5rem; vertical-align: middle;">
@@ -336,6 +336,35 @@
                 </div>
             </div>
         </div>
+
+        <!-- Bulk Import Format Instructions Modal -->
+        <div id="bulkImportModal" class="modal hidden">
+            <div class="modal-content glass-panel" style="max-width: 500px; width: 90%; position: relative; padding: 2rem; border-radius: 20px;">
+                <button class="close-btn" onclick="document.getElementById('bulkImportModal').classList.add('hidden')" style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
+                <h3 style="margin-bottom: 1rem; color: var(--primary);">Bulk Import Guidelines</h3>
+                <p style="color: var(--text-main); line-height: 1.5; margin-bottom: 1.5rem;">
+                    For the fastest and most reliable bulk upload, please provide a <b>.CSV</b> file that contains a single column of your books' 10 or 13-digit ISBNs.
+                </p>
+                <div style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; border: 1px dashed var(--card-border); margin-bottom: 1.5rem; text-align: center;">
+                    <p style="font-family: monospace; color: var(--text-muted); margin-bottom: 0.5rem;">Example structure:</p>
+                    <div style="font-family: monospace; color: var(--primary);">
+                        ISBN<br>
+                        9780141182803<br>
+                        9780061120084<br>
+                        ...
+                    </div>
+                </div>
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button class="btn" style="flex: 1; background: transparent; border: 1px solid var(--secondary); color: var(--secondary);" onclick="downloadCsvTemplate()">
+                        📥 Download Template
+                    </button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="document.getElementById('bulkImportModal').classList.add('hidden'); document.getElementById('csvFileInput').click();">
+                        Proceed to Upload
+                    </button>
+                </div>
+            </div>
+        </div>
+
         <!-- Bulk Import Progress Modal -->
         <div id="progressModal" class="modal hidden">
             <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">

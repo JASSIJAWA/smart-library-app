@@ -136,10 +136,106 @@ const deleteBook = async (req, res) => {
     }
 };
 
+// @desc    Bulk Import books via ISBN array
+// @route   POST /api/books/bulk
+// @access  Private (Librarian)
+const bulkImportBooks = async (req, res) => {
+    const { isbns } = req.body;
+    if (!isbns || !Array.isArray(isbns) || isbns.length === 0) {
+        return res.status(400).json({ message: 'Please provide an array of ISBNs' });
+    }
+
+    let successCount = 0;
+    let failCount = 0;
+    let failedIsbns = [];
+
+    // Simple concurrency limiting (process 5 at a time)
+    const BATCH_SIZE = 5;
+    for (let i = 0; i < isbns.length; i += BATCH_SIZE) {
+        const batch = isbns.slice(i, i + BATCH_SIZE);
+        
+        await Promise.all(batch.map(async (isbn) => {
+            try {
+                // Check if book exists
+                const existingBook = await Book.findOne({ isbn: isbn, tenantId: req.tenant._id });
+                if (existingBook) {
+                    existingBook.stock += 1;
+                    await existingBook.save();
+                    successCount++;
+                    return;
+                }
+
+                // Fetch from Google Books
+                let response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+                let data = await response.json();
+                let bookDetails = null;
+
+                if (data.totalItems > 0) {
+                    bookDetails = data.items[0].volumeInfo;
+                } else {
+                    response = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${isbn}`);
+                    data = await response.json();
+                    if (data.totalItems > 0) {
+                        bookDetails = data.items[0].volumeInfo;
+                    } else {
+                        // Fallback open library
+                        const olResponse = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=data&format=json`);
+                        const olData = await olResponse.json();
+                        const olKey = `ISBN:${isbn}`;
+                        if (olData[olKey]) {
+                            const olBook = olData[olKey];
+                            bookDetails = {
+                                title: olBook.title,
+                                authors: olBook.authors ? olBook.authors.map(a => a.name) : null,
+                                categories: olBook.subjects ? olBook.subjects.map(s => s.name) : null,
+                                imageLinks: olBook.cover ? { thumbnail: olBook.cover.large || olBook.cover.medium } : null
+                            };
+                        }
+                    }
+                }
+
+                if (!bookDetails || !bookDetails.title) {
+                    failCount++;
+                    failedIsbns.push(isbn);
+                    return;
+                }
+
+                // Create book
+                let hdUrl = '';
+                if (bookDetails.imageLinks && bookDetails.imageLinks.thumbnail) {
+                    hdUrl = bookDetails.imageLinks.thumbnail;
+                    if (hdUrl.includes('googleapis')) {
+                        hdUrl = hdUrl.replace('http:', 'https:').replace('&zoom=1', '&zoom=0');
+                    }
+                }
+
+                await Book.create({
+                    tenantId: req.tenant._id,
+                    title: bookDetails.title,
+                    author: bookDetails.authors && bookDetails.authors.length > 0 ? bookDetails.authors[0] : 'Unknown Author',
+                    category: bookDetails.categories && bookDetails.categories.length > 0 ? bookDetails.categories[0] : 'General',
+                    stock: 1,
+                    isbn: isbn,
+                    imageUrl: hdUrl
+                });
+
+                successCount++;
+            } catch (error) {
+                console.error(`Bulk import error for ISBN ${isbn}:`, error);
+                failCount++;
+                failedIsbns.push(isbn);
+            }
+        }));
+    }
+
+    res.status(200).json({ successCount, failCount, failedIsbns });
+};
+
 module.exports = {
     getBooks,
     getBookById,
     createBook,
     updateBook,
     deleteBook,
+    bulkImportBooks
 };

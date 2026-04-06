@@ -938,6 +938,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+function downloadCsvTemplate() {
+    const csvContent = "ISBN\n9780141182803\n9780061120084";
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.style.display = 'none';
+    a.href = url;
+    a.download = `Smart_Library_Bulk_Import_Template.csv`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
 // --- SaaS Phase 5: Bulk Data Import (CSV) ---
 async function processCsvImport(event) {
     const file = event.target.files[0];
@@ -946,13 +960,6 @@ async function processCsvImport(event) {
     // Reset input so the same file could be selected again if needed
     document.getElementById('csvFileInput').value = '';
 
-    const proceed = await showCustomConfirm(
-        "Confirm Bulk Import",
-        `You have selected <b>${file.name}</b>. The system will scan this file for all valid ISBN barcodes and automatically import them into your library.<br><br>This may take several minutes depending on the file size. Do you wish to proceed?`
-    );
-
-    if (!proceed) return;
-
     // Open Progress Modal
     const progressModal = document.getElementById('progressModal');
     const progressMessage = document.getElementById('progressModalMessage');
@@ -960,21 +967,15 @@ async function processCsvImport(event) {
     const progressBarFill = document.getElementById('progressBarFill');
 
     progressModal.classList.remove('hidden');
-    progressMessage.textContent = "Analyzing CSV/Text file...";
-    progressBarFill.style.width = "0%";
-    progressCount.textContent = "0 / 0";
+    progressMessage.textContent = "Analyzing structure & dispatching to Server...";
+    progressBarFill.style.width = "10%";
+    progressCount.textContent = "Processing...";
 
     const reader = new FileReader();
     reader.onload = async (e) => {
         const text = e.target.result;
-
-        // Strip hyphens to reconstruct hyphenated ISBNs like 978-1-78633-089-5 -> 9781786330895
         const sanitizedText = text.replace(/[-]/g, '');
-
-        // Robust Regex: Find any distinct number that is 10 to 13 digits long anywhere in the file.
         const matches = sanitizedText.match(/\b\d{10,13}\b/g) || [];
-
-        // Filter out strict 10 or 13 length (real ISBNs), and remove duplicates
         const uniqueIsbns = [...new Set(matches.filter(m => m.length === 10 || m.length === 13))];
 
         if (uniqueIsbns.length === 0) {
@@ -983,105 +984,54 @@ async function processCsvImport(event) {
             return;
         }
 
-        progressMessage.textContent = "Connecting to Global Database...";
-        let successCount = 0;
-        let failCount = 0;
-        let failedIsbns = [];
+        try {
+            progressMessage.textContent = "Server is fetching metadata & importing... (This may take a moment for large files)";
+            progressBarFill.style.width = "50%";
 
-        for (let i = 0; i < uniqueIsbns.length; i++) {
-            const currentIsbn = uniqueIsbns[i];
+            const res = await fetch(`${API_URL}/books/bulk`, {
+                method: 'POST',
+                headers: getHeaders(),
+                body: JSON.stringify({ isbns: uniqueIsbns })
+            });
 
-            // Update UI
-            progressMessage.innerHTML = `Fetching metadata for ISBN:<br><b>${currentIsbn}</b>`;
-            progressCount.textContent = `${i + 1} / ${uniqueIsbns.length}`;
-            progressBarFill.style.width = `${((i + 1) / uniqueIsbns.length) * 100}%`;
+            const data = await res.json();
+            progressBarFill.style.width = "100%";
+            progressModal.classList.add('hidden');
 
-            // We must temporarily populate the standard input box because fetchBookDetails reads from it
-            document.getElementById('scanIsbn').value = currentIsbn;
+            if (res.ok) {
+                let summaryMsg = `Bulk Import Complete!<br><br><span style="color:var(--success)">${data.successCount} Books Imported/Updated</span><br><span style="color:var(--danger)">${data.failCount} Books Failed (Not Found or Error)</span>`;
 
-            try {
-                // Call smart fetcher in SILENT mode. No DOM alerts, no confirmations.
-                const fetchStatus = await fetchBookDetails(true);
-
-                if (fetchStatus === "DUPLICATE_INCREMENTED") {
-                    // Handled internally by fetchBookDetails
-                    successCount++;
-                } else if (fetchStatus === "SUCCESS") {
-                    const title = document.getElementById('bookTitle').value;
-                    if (title && title !== "Book Not Found") {
-                        // Directly POST to API instead of manipulating the DOM submit event (Avoids race conditions)
-                        const book = {
-                            title: title,
-                            author: document.getElementById('bookAuthor').value,
-                            category: document.getElementById('bookCategory').value,
-                            stock: document.getElementById('bookStock').value || 1,
-                            isbn: currentIsbn,
-                            imageUrl: document.getElementById('bookImageUrl').value
-                        };
-
-                        const res = await fetch(`${API_URL}/books`, {
-                            method: 'POST',
-                            headers: getHeaders(),
-                            body: JSON.stringify(book)
-                        });
-
-                        if (res.ok) {
-                            successCount++;
-                        } else {
-                            failCount++;
-                        }
-                    } else {
-                        failCount++;
-                        failedIsbns.push(currentIsbn);
-                    }
-                } else {
-                    failCount++; // Hit if NOT_FOUND, NO_ISBN, or ERROR
-                    failedIsbns.push(currentIsbn);
+                if (data.failedIsbns && data.failedIsbns.length > 0) {
+                    summaryMsg += `<br><br><span style="font-size:0.85em; color:var(--text-muted)">An error report containing the failed ISBNs has been downloaded automatically.</span>`;
+                    
+                    const csvContent = "Failed_ISBN\n" + data.failedIsbns.join("\n");
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = `Bulk_Import_Failures_${new Date().getTime()}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
                 }
 
-                // Wait briefly to not hammer the server too fast
-                await new Promise(r => setTimeout(r, 600));
-
-            } catch (err) {
-                console.error("Failed importing ISBN " + currentIsbn, err);
-                failCount++;
-                failedIsbns.push(currentIsbn);
+                await showCustomAlert("Import Summary", summaryMsg, true);
+                loadBooks();
+            } else {
+                showCustomAlert("Import Failed", data.message || "Something went wrong on the server.", false);
             }
+        } catch (err) {
+            console.error(err);
+            progressModal.classList.add('hidden');
+            showCustomAlert("Network Error", "Lost connection to the server while importing.", false);
         }
-
-        // Complete!
-        progressModal.classList.add('hidden');
-
-        // Clean up input
-        document.getElementById('scanIsbn').value = '';
-        document.getElementById('addBookForm').reset();
-
-        let summaryMsg = `Bulk Import Complete!<br><br><span style="color:var(--success)">${successCount} Books Imported/Updated</span><br><span style="color:var(--danger)">${failCount} Books Failed (Not Found)</span>`;
-
-        if (failedIsbns.length > 0) {
-            summaryMsg += `<br><br><span style="font-size:0.85em; color:var(--text-muted)">An error report containing the failed ISBNs has been downloaded automatically.</span>`;
-
-            // Auto-Generate and Download Error CSV
-            const csvContent = "Failed_ISBN\\n" + failedIsbns.join("\\n");
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.style.display = 'none';
-            a.href = url;
-            a.download = `Bulk_Import_Failures_${new Date().getTime()}.csv`;
-            document.body.appendChild(a);
-            a.click();
-            window.URL.revokeObjectURL(url);
-            document.body.removeChild(a);
-        }
-
-        await showCustomAlert("Import Summary", summaryMsg, true);
-
-        loadBooks();
     };
 
     reader.readAsText(file);
 }
+
 
 // ---------------- CONFIGURATION SETTINGS ----------------
 async function fetchCurrentConfig() {
