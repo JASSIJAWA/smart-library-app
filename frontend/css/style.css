@@ -426,6 +426,9 @@
   .h-\[22px\] {
     height: 22px;
   }
+  .h-\[30px\] {
+    height: 30px;
+  }
   .h-\[35px\] {
     height: 35px;
   }
@@ -1158,6 +1161,9 @@
   }
   .uppercase {
     text-transform: uppercase;
+  }
+  .italic {
+    font-style: italic;
   }
   .no-underline {
     text-decoration-line: none;

@@ -451,6 +451,18 @@ function showTenantDetails(encodedTenant) {
         document.getElementById('detailAdminEmail').textContent = tenant.adminEmail || 'Unknown';
         document.getElementById('detailSubdomain').textContent = tenant.subdomain + '.loca.lt';
 
+        const logoImg = document.getElementById('detailLogo');
+        const noLogoText = document.getElementById('detailNoLogo');
+        if (tenant.logoUrl) {
+            logoImg.src = tenant.logoUrl;
+            logoImg.classList.remove('hidden');
+            noLogoText.classList.add('hidden');
+        } else {
+            logoImg.src = '';
+            logoImg.classList.add('hidden');
+            noLogoText.classList.remove('hidden');
+        }
+
         // Handle nested optional branding colors safely
         let primaryColor = '#2563eb';
         if (tenant.brandingColors && tenant.brandingColors.primary) {

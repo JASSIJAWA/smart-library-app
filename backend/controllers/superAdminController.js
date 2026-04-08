@@ -7,6 +7,19 @@ const Category = require('../models/Category');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
+const fs = require('fs');
+const path = require('path');
+
+// Helper: Convert an uploaded file to a base64 data URL and delete the temp file
+const fileToDataUrl = (file) => {
+    const filePath = file.path;
+    const fileData = fs.readFileSync(filePath);
+    const base64 = fileData.toString('base64');
+    const dataUrl = `data:${file.mimetype};base64,${base64}`;
+    // Clean up the temporary file from disk
+    fs.unlinkSync(filePath);
+    return dataUrl;
+};
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -253,7 +266,7 @@ const createTenant = async (req, res) => {
             brandingColors: {
                 primary: primaryColor || '#2563eb'
             },
-            logoUrl: req.file ? `/uploads/${req.file.filename}` : '',
+            logoUrl: req.file ? fileToDataUrl(req.file) : '',
             isActive: true
         });
 
@@ -350,9 +363,9 @@ const updateTenantSettings = async (req, res) => {
         if (name) tenant.name = name;
         if (primaryColor) tenant.brandingColors.primary = primaryColor;
         
-        // Handle logo file if uploaded
+        // Handle logo file if uploaded — convert to base64 for cloud persistence
         if (req.file) {
-            tenant.logoUrl = `/uploads/${req.file.filename}`;
+            tenant.logoUrl = fileToDataUrl(req.file);
         }
 
         if (typeof isActive === 'boolean' || isActive === 'true' || isActive === 'false') {
