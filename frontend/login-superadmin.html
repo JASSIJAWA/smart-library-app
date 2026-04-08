@@ -5,71 +5,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Platform Command Center</title>
-    <!-- Use the existing global styling -->
+    <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme.js"></script>
-    <style>
-        /* Force a darker, more executive theme for the super admin portal */
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text-main);
-        }
-
-        .container {
-            border-top: 4px solid var(--primary);
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body style="justify-content: center; align-items: center; min-height: 100vh; display: flex;">
-    <!-- Animated Background Orbs (Darker versions) -->
-    <div class="bg-orbs">
-        <div class="orb orb-1"
-            style="opacity: 0.2; background: radial-gradient(circle at center, var(--primary) 0%, transparent 70%);">
-        </div>
-        <div class="orb orb-2"
-            style="opacity: 0.1; background: radial-gradient(circle at center, rgba(255, 215, 0, 0.4) 0%, transparent 70%);">
-        </div>
+<body class="min-h-screen flex text-text-main bg-bg-dark justify-center items-center font-sans overflow-x-hidden">
+    <!-- Animated Background Orbs -->
+    <div class="hidden">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
     </div>
 
-    <!-- Theme Toggle (Hidden for SuperAdmin to strictly enforce dark/executive mode if desired, or left for flexibility) -->
-    <div style="position: absolute; top: 1.5rem; right: 2rem; z-index: 100;">
-        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
+    <!-- Theme Toggle -->
+    <div class="absolute top-6 right-8 z-[100]">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-gray-500/15 hover:rotate-12" title="Toggle Light/Dark Theme"></button>
     </div>
 
-    <div class="container glass-panel"
-        style="width: 100%; max-width: 450px; position: relative; z-index: 10; margin: 2rem;">
-        <div style="text-align: center; margin-bottom: 2rem;">
+    <div class="w-full max-w-[450px] relative z-10 m-8 bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] border-t-[4px] border-t-primary">
+        <div class="text-center mb-8">
             <!-- Crown/Shield Icon indicating Master Access -->
-            <svg style="width: 48px; height: 48px; color: var(--primary); margin-bottom: 1rem;" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                </path>
+            <svg class="w-12 h-12 text-primary mb-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
             </svg>
-            <h1 style="font-size: 2rem; color: var(--text-color); margin-bottom: 0.5rem; letter-spacing: -0.5px;">
-                Command Center</h1>
-            <p
-                style="color: var(--primary); font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600;">
-                Super Admin Access
-            </p>
+            <h1 class="font-serif text-3xl font-bold mb-2 tracking-tight text-text-main">Command Center</h1>
+            <p class="text-primary text-sm tracking-[2px] uppercase font-semibold">Super Admin Access</p>
         </div>
 
         <!-- Login Form -->
         <form id="superAdminLoginForm">
-            <div class="form-group">
-                <label>Master Email</label>
-                <input type="email" id="loginEmail" placeholder="admin@smartlibrary.com" required
-                    style="border-radius: 8px;">
+            <div class="relative mb-6">
+                <label class="block mb-2 text-text-muted text-sm font-medium">Master Email</label>
+                <input type="email" id="loginEmail" placeholder="admin@smartlibrary.com" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main transition-all duration-300 hover:border-primary focus:outline-none focus:bg-black/40 focus:border-primary">
             </div>
-            <div class="form-group">
-                <label>Master Password</label>
-                <div class="password-container">
-                    <input type="password" id="loginPassword" placeholder="••••••••" required
-                        style="border-radius: 8px;">
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
-                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
+            <div class="relative mb-6">
+                <label class="block mb-2 text-text-muted text-sm font-medium">Master Password</label>
+                <div class="relative flex items-center password-container pl-0">
+                    <input type="password" id="loginPassword" placeholder="••••••••" required class="w-full px-4 py-3 pr-11 bg-black/20 border border-card-border rounded-xl text-text-main transition-all duration-300 hover:border-primary focus:outline-none focus:bg-black/40 focus:border-primary">
+                    <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 bg-transparent text-text-muted cursor-pointer transition-all duration-300 hover:text-primary hover:scale-110" onclick="togglePassword('loginPassword', this)">
+                        <svg class="smooth-eye w-[22px] h-[22px] inline-block transition-all duration-400 stroke-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
                             <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
                             <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
@@ -79,57 +56,56 @@
                     </button>
                 </div>
             </div>
-            <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1rem;">
-                <a href="#" id="showAdminForgotPassword" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;">Forgot Password?</a>
+            <div class="text-right -mt-2 mb-4">
+                <a href="#" id="showAdminForgotPassword" class="text-primary text-sm no-underline hover:brightness-125 transition-all">Forgot Password?</a>
             </div>
-            <button type="submit" class="btn btn-primary"
-                style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(0, 204, 153, 0.3);">
+            <button type="submit" class="w-full mt-4 px-7 py-4 rounded-xl font-semibold text-sm uppercase transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(0,204,153,0.3)] hover:-translate-y-0.5 hover:shadow-lg">
                 Authenticate Protocol
             </button>
         </form>
 
         <!-- 2FA Matrix Form -->
         <form id="superAdminOtpForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #ef4444; letter-spacing: 2px;">2FA REQUIRED</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">The Master Key was sent to your secure inbox.</p>
-            <div class="form-group">
-                <input type="text" id="adminVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; color: #ef4444;" required>
+            <h2 class="font-serif font-bold text-center text-2xl mb-2 text-danger tracking-[2px]">2FA REQUIRED</h2>
+            <p class="text-center mb-6 text-text-muted text-sm">The Master Key was sent to your secure inbox.</p>
+            <div class="relative mb-6">
+                <input type="text" id="adminVerifyOtp" placeholder="------" class="w-full px-4 py-4 text-center font-mono text-3xl tracking-[12px] text-danger bg-black/20 border border-card-border rounded-xl focus:outline-none focus:border-danger" required>
             </div>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #ef4444; color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);">
+            <button type="submit" class="w-full mt-4 px-7 py-4 rounded-xl font-semibold text-sm uppercase transition-all duration-300 bg-danger text-white shadow-[0_4px_15px_rgba(239,68,68,0.3)] hover:-translate-y-0.5">
                 Complete Handshake
             </button>
-            <p style="text-align: center; margin-top: 1.5rem;">
-                <a href="#" id="backToMasterLogin" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Abort Handshake</a>
+            <p class="text-center mt-6">
+                <a href="#" id="backToMasterLogin" class="text-text-muted text-sm no-underline hover:text-white transition-all">Abort Handshake</a>
             </p>
         </form>
 
         <!-- Admin Forgot Password Request (Hidden) -->
         <form id="adminForgotPasswordRequestForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b; letter-spacing: 2px;">RECOVERY 2FA</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Input Master Email to intercept 2FA code.</p>
-            <div class="form-group">
-                <input type="email" id="adminForgotEmail" placeholder="admin@master.com" required style="border-radius: 8px;">
+            <h2 class="font-serif font-bold text-center text-2xl mb-2 text-warning tracking-[2px]">RECOVERY 2FA</h2>
+            <p class="text-center mb-6 text-text-muted text-sm">Input Master Email to intercept 2FA code.</p>
+            <div class="relative mb-6">
+                <input type="email" id="adminForgotEmail" placeholder="admin@master.com" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
             </div>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+            <button type="submit" class="w-full mt-4 px-7 py-4 rounded-xl font-semibold text-sm uppercase transition-all duration-300 bg-warning text-white shadow-[0_4px_15px_rgba(245,158,11,0.3)] hover:-translate-y-0.5">
                 Signal Ops
             </button>
-            <p style="text-align: center; margin-top: 1.5rem;">
-                <a href="#" id="backToMasterLoginFromForgot" style="color: var(--text-muted); font-size: 0.85rem; text-decoration: none;">Abort Recovery</a>
+            <p class="text-center mt-6">
+                <a href="#" id="backToMasterLoginFromForgot" class="text-text-muted text-sm no-underline hover:text-white transition-all">Abort Recovery</a>
             </p>
         </form>
 
         <!-- Admin Forgot Password Verify (Hidden) -->
         <form id="adminForgotPasswordVerifyForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b; letter-spacing: 2px;">RESET MATRIX</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Input Recovery Pin and New Matrix Key.</p>
-            <div class="form-group">
-                <input type="text" id="adminForgotVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.8rem; letter-spacing: 12px; color: #f59e0b;" required>
+            <h2 class="font-serif font-bold text-center text-2xl mb-2 text-warning tracking-[2px]">RESET MATRIX</h2>
+            <p class="text-center mb-6 text-text-muted text-sm">Input Recovery Pin and New Matrix Key.</p>
+            <div class="relative mb-6">
+                <input type="text" id="adminForgotVerifyOtp" placeholder="------" required class="w-full px-4 py-4 text-center font-mono text-3xl tracking-[12px] text-warning bg-black/20 border border-card-border rounded-xl focus:outline-none focus:border-warning">
             </div>
-            <div class="form-group">
-                <div class="password-container">
-                    <input type="password" id="adminForgotNewPassword" placeholder="New Master Key" required style="border-radius: 8px;">
-                    <button type="button" class="password-toggle" onclick="togglePassword('adminForgotNewPassword', this)">
-                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="relative mb-6">
+                <div class="relative flex items-center password-container pl-0">
+                    <input type="password" id="adminForgotNewPassword" placeholder="New Master Key" required class="w-full px-4 py-3 pr-11 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
+                    <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 bg-transparent text-text-muted cursor-pointer transition-all duration-300 hover:text-warning hover:scale-110" onclick="togglePassword('adminForgotNewPassword', this)">
+                        <svg class="smooth-eye w-[22px] h-[22px] inline-block transition-all duration-400 stroke-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
                             <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
                             <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
@@ -139,25 +115,23 @@
                     </button>
                 </div>
             </div>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; font-weight: 600; padding: 1rem; border-radius: 8px; background: #f59e0b; color: white; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">
+            <button type="submit" class="w-full mt-4 px-7 py-4 rounded-xl font-semibold text-sm uppercase transition-all duration-300 bg-warning text-white shadow-[0_4px_15px_rgba(245,158,11,0.3)] hover:-translate-y-0.5">
                 Confirm Override
             </button>
         </form>
     </div>
 
-    <!-- Universal Custom Modal from previous phases -->
-    <div id="customModal" class="modal hidden">
-        <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
-            <h3 id="customModalTitle" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem;">
-                Notification</h3>
-            <p id="customModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;"></p>
-            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
-                <input type="text" id="customModalInput" style="width: 100%; text-align: center;">
+    <!-- Universal Custom Modal -->
+    <div id="customModal" class="modal hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[1000] flex items-center justify-center opacity-0 invisible pointer-events-none transition-all duration-300 [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:visible [&:not(.hidden)]:pointer-events-auto">
+        <div class="bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] w-[90%] max-w-[450px] text-center transform transition-transform duration-300 scale-95 [&:not(.hidden)>div]:scale-100">
+            <h3 id="customModalTitle" class="text-primary text-2xl font-serif font-bold mb-4">Notification</h3>
+            <p id="customModalMessage" class="text-text-main leading-relaxed mb-6"></p>
+            <div id="customModalInputContainer" class="hidden mb-8">
+                <input type="text" id="customModalInput" class="w-full text-center px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
             </div>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button id="customModalCancelBtn" class="btn hidden"
-                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
-                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            <div class="flex gap-4 justify-center">
+                <button id="customModalCancelBtn" class="hidden flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-transparent border border-text-muted text-text-main hover:bg-white/5">Cancel</button>
+                <button id="customModalConfirmBtn" class="flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-primary text-bg-dark shadow-md hover:-translate-y-0.5">OK</button>
             </div>
         </div>
     </div>
@@ -165,16 +139,14 @@
     <script src="js/config.js"></script>
     <script src="js/superadmin.js"></script>
     <script>
-        // Inline script to bind login toggle
         function togglePassword(inputId, btn) {
             const input = document.getElementById(inputId);
-            const eyeGroupElement = btn.closest('.password-container');
             if (input.type === 'password') {
                 input.type = 'text';
-                eyeGroupElement.classList.add('visible');
+                btn.classList.add('is-open'); // Open eye logic maps natively via the global utilities we stored
             } else {
                 input.type = 'password';
-                eyeGroupElement.classList.remove('visible');
+                btn.classList.remove('is-open');
             }
         }
     </script>

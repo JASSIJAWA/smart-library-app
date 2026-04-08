@@ -118,12 +118,14 @@ class IdleMonitor {
     constructor(timeoutMinutes) {
         this.timeoutMs = timeoutMinutes * 60 * 1000;
         this.timer = null;
+        this.isSuperAdmin = window.location.pathname.includes('superadmin.html');
         this.startMonitor();
     }
 
     startMonitor() {
         // Only run if the user is actually signed in (so it doesn't auto-refresh the login page infinitely)
-        if (!localStorage.getItem('token')) return;
+        const tokenKey = this.isSuperAdmin ? 'superAdminToken' : 'token';
+        if (!localStorage.getItem(tokenKey)) return;
 
         // Listen for all physical activity traces
         const resetEvents = ['mousemove', 'mousedown', 'keypress', 'touchstart', 'scroll'];
@@ -141,16 +143,20 @@ class IdleMonitor {
 
     logout() {
         // Violent ejection protocol: shred the secure tokens permanently
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        localStorage.removeItem('name');
-        localStorage.removeItem('userId');
+        if (this.isSuperAdmin) {
+            localStorage.removeItem('superAdminToken');
+        } else {
+            localStorage.removeItem('token');
+            localStorage.removeItem('role');
+            localStorage.removeItem('name');
+            localStorage.removeItem('userId');
+        }
         
         // Let them know why they got booted!
         showCustomToast('Security Trigger: Session expired due to 5 minutes of inactivity.', 'error');
         
         setTimeout(() => {
-            window.location.href = 'index.html'; // Or whatever your base login HTML is called globally
+            window.location.href = this.isSuperAdmin ? 'login-superadmin.html' : 'index.html';
         }, 2000);
     }
 }

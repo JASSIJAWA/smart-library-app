@@ -48,13 +48,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (res.ok) {
                         tempMasterEmail = email;
                         loginForm.classList.add('hidden');
+                        await showCustomAlert('Matrix Active', 'Master keys dispatched. Enter precisely 6 digits to drop payload.', true);
                         otpForm.classList.remove('hidden');
-                        showCustomAlert('Matrix Active', 'Master keys dispatched. Enter precisely 6 digits to drop payload.', true);
                     } else {
-                        showCustomAlert('Access Denied', data.message || 'Invalid Master Credentials', false);
+                        await showCustomAlert('Access Denied', data.message || 'Invalid Master Credentials', false);
                     }
                 } catch (err) {
-                    showCustomAlert('System Error', 'Could not reach the global API. Ensure server is online.', false);
+                    await showCustomAlert('System Error', 'Could not reach the global API. Ensure server is online.', false);
                 }
             });
         }
@@ -76,10 +76,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         localStorage.setItem('superAdminToken', data.token);
                         window.location.href = 'dashboard-superadmin.html';
                     } else {
-                        showCustomAlert('Authorization Blocked', data.message || 'Invalid 2FA Configuration.', false);
+                        await showCustomAlert('Authorization Blocked', data.message || 'Invalid 2FA Configuration.', false);
                     }
                 } catch (err) {
-                    showCustomAlert('System Error', 'Server link severed during decryption.', false);
+                    await showCustomAlert('System Error', 'Server link severed during decryption.', false);
                 }
             });
 
@@ -116,13 +116,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (res.ok) {
                         tempMasterEmail = email;
                         hideAllForms();
+                        await showCustomAlert('Recovery Signal', data.message, true);
                         forgotVerifyForm.classList.remove('hidden');
-                        showCustomAlert('Recovery Signal', data.message, true);
                     } else {
-                        showCustomAlert('Signal Blocked', data.message || 'Action rejected.', false);
+                        await showCustomAlert('Signal Blocked', data.message || 'Action rejected.', false);
                     }
                 } catch(err) {
-                    showCustomAlert('System Error', 'Could not reach server cluster for recovery.', false);
+                    await showCustomAlert('System Error', 'Could not reach server cluster for recovery.', false);
                 }
             });
 
@@ -149,14 +149,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     if (res.ok) {
                         hideAllForms();
-                        loginForm.classList.remove('hidden');
                         document.getElementById('loginEmail').value = tempMasterEmail;
-                        showCustomAlert('Matrix Overwritten', data.message, true);
+                        await showCustomAlert('Matrix Overwritten', data.message, true);
+                        loginForm.classList.remove('hidden');
                     } else {
-                        showCustomAlert('Reset Failed', data.message || 'Pin validation error.', false);
+                        await showCustomAlert('Reset Failed', data.message || 'Pin validation error.', false);
                     }
                 } catch(err) {
-                    showCustomAlert('System Error', 'Server offline.', false);
+                    await showCustomAlert('System Error', 'Server offline.', false);
                 }
             });
         }
@@ -313,9 +313,10 @@ async function loadTenantsGrid() {
         const res = await fetch(`${API_URL}/superadmin/tenants`, {
             headers: getSuperAdminHeaders()
         });
-        const data = await res.json();
+        let data = await res.json();
 
         if (res.ok) {
+            if (!Array.isArray(data)) data = [];
             const grid = document.getElementById('tenantsGrid');
             grid.innerHTML = '';
 
@@ -323,34 +324,39 @@ async function loadTenantsGrid() {
                 const isActive = tenant.isActive;
                 const encodedTenant = encodeURIComponent(JSON.stringify(tenant));
                 const card = document.createElement('div');
-                card.className = 'tenant-card';
+                card.className = 'bg-card-bg border border-card-border rounded-xl p-6 transition-all duration-300 relative shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:border-primary hover:shadow-[0_8px_25px_rgba(0,0,0,0.3)]';
+                
+                const badgeClass = isActive 
+                    ? 'bg-success/10 text-success' 
+                    : 'bg-danger/10 text-danger';
+
                 card.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                        <div class="tenant-badge ${isActive ? 'active' : 'suspended'}">
+                    <div class="flex justify-between items-start">
+                        <div class="absolute top-6 right-6 px-3 py-1 rounded-full text-xs font-bold ${badgeClass}">
                             ${isActive ? 'Online' : 'Suspended'}
                         </div>
-                        <button onclick="showTenantDetails('${encodedTenant}')" style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); border-radius: 50%; width: 26px; height: 26px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="View Tenant Details">i</button>
+                        <button onclick="showTenantDetails('${encodedTenant}')" class="bg-transparent border border-text-muted text-text-main rounded-full w-7 h-7 font-bold cursor-pointer flex items-center justify-center transition-colors hover:border-primary hover:text-primary" title="View Tenant Details">i</button>
                     </div>
-                    <h3 style="color: var(--text-color); font-size: 1.2rem; margin-top: 1rem; margin-bottom: 0.2rem;">${tenant.name}</h3>
-                    <p style="color: var(--primary); font-family: monospace; font-size: 0.9rem;">${tenant.subdomain}.loca.lt</p>
+                    <h3 class="text-text-main text-xl mt-4 mb-1 font-serif font-semibold">${tenant.name}</h3>
+                    <p class="text-primary font-mono text-sm">${tenant.subdomain}.loca.lt</p>
                     
-                    <div class="tenant-stats">
-                        <div class="t-stat">
-                            <span>${tenant.stats.users}</span>
-                            <small>Users</small>
+                    <div class="flex justify-between mt-6 pt-4 border-t border-card-border">
+                        <div class="text-center">
+                            <span class="block font-serif text-2xl font-semibold text-primary">${tenant.stats.users}</span>
+                            <small class="text-text-muted text-xs uppercase tracking-[0.5px]">Users</small>
                         </div>
-                        <div class="t-stat">
-                            <span>${tenant.stats.books}</span>
-                            <small>Books</small>
+                        <div class="text-center">
+                            <span class="block font-serif text-2xl font-semibold text-primary">${tenant.stats.books}</span>
+                            <small class="text-text-muted text-xs uppercase tracking-[0.5px]">Books</small>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1.5rem;">
-                        <button onclick="toggleTenantStatus('${tenant._id}', ${isActive})" class="btn ${isActive ? 'btn-danger' : 'btn-primary'}" style="flex: 2; padding: 0.6rem;">
+                    <div class="flex gap-2 mt-6">
+                        <button onclick="toggleTenantStatus('${tenant._id}', ${isActive})" class="flex-[2] px-4 py-2 rounded-lg font-semibold uppercase tracking-[1px] transition-all text-white shadow-md hover:-translate-y-0.5 ${isActive ? 'bg-danger' : 'bg-primary'}">
                             ${isActive ? 'Suspend' : 'Restore'}
                         </button>
-                        <button onclick="deleteTenant('${tenant._id}')" class="btn" style="flex: 1; padding: 0.6rem; background: transparent; border: 1px solid var(--danger); color: var(--danger);" title="Permanently Delete Instance">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display: block; margin: 0 auto;">
+                        <button onclick="deleteTenant('${tenant._id}')" class="flex-1 px-4 py-2 rounded-lg transition-all bg-transparent border border-danger text-danger hover:bg-danger/10 flex justify-center items-center" title="Permanently Delete Instance">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
                             </svg>
                         </button>

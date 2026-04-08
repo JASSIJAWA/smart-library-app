@@ -73,12 +73,16 @@ async function loadCategories() {
 
     try {
         const res = await fetch(`${API_URL}/categories`, { headers: getHeaders() });
-        const data = await res.json();
+        let data = await res.json();
+        
+        if (!Array.isArray(data)) data = [];
 
         data.forEach(cat => {
-            const row = `<tr>
-                <td>${cat.name}</td>
-                <td><button class="btn btn-danger" onclick="deleteCategory('${cat._id}')">Delete</button></td>
+            const row = `<tr class="hover:bg-white/5 transition-colors group">
+                <td class="py-4 px-4 border-b border-border-color text-text-main font-medium">${cat.name}</td>
+                <td class="py-4 px-4 border-b border-border-color text-right">
+                    <button class="bg-transparent border border-danger text-danger px-3 py-1.5 rounded text-sm font-semibold hover:bg-danger hover:text-white transition-colors" onclick="deleteCategory('${cat._id}')">Delete</button>
+                </td>
             </tr>`;
             tbody.innerHTML += row;
         });
@@ -124,7 +128,8 @@ async function loadCategoriesDropdown() {
     const select = document.getElementById('bookCategory');
     try {
         const res = await fetch(`${API_URL}/categories`, { headers: getHeaders() });
-        const data = await res.json();
+        let data = await res.json();
+        if (!Array.isArray(data)) data = [];
         select.innerHTML = data.map(c => `<option value="${c.name}">${c.name}</option>`).join('');
     } catch (err) { console.error(err); }
 }
@@ -218,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadBooks(searchQuery = '', silent = false) {
     const grid = document.getElementById('booksGrid');
     if (!silent) {
-        grid.innerHTML = '<div style="text-align:center; width:100%; grid-column: 1/-1; padding: 2rem;"><span class="spinner" style="display:inline-block; width:30px; height:30px; border:3px solid var(--primary); border-top-color:transparent; border-radius:50%; animation:spin 1s linear infinite;"></span></div>';
+        grid.innerHTML = '<div class="col-span-full text-center py-8"><span class="inline-block w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span></div>';
     }
 
     try {
@@ -227,7 +232,12 @@ async function loadBooks(searchQuery = '', silent = false) {
             url += `?search=${encodeURIComponent(searchQuery)}`;
         }
         const res = await fetch(url, { headers: getHeaders() });
-        const data = await res.json();
+        let data = await res.json();
+        
+        if (!Array.isArray(data)) {
+            console.error('API Error: Expected array of books, got:', data);
+            data = [];
+        }
 
         grid.innerHTML = '';
 
@@ -238,7 +248,7 @@ async function loadBooks(searchQuery = '', silent = false) {
         }
 
         if (data.length === 0) {
-            grid.innerHTML = '<p style="text-align: center; width: 100%; grid-column: 1/-1; color: var(--text-muted);">No books found matching your search.</p>';
+            grid.innerHTML = '<p class="col-span-full text-center text-text-muted py-8">No books found matching your search.</p>';
             return;
         }
 
@@ -253,19 +263,19 @@ async function loadBooks(searchQuery = '', silent = false) {
 
             const encodedBook = encodeURIComponent(JSON.stringify(book));
             const card = `
-                <div class="book-card">
-                    <img src="${imgUrl}" alt="${book.title} cover" class="book-cover">
-                    <h4 class="book-title" title="${book.title}">${book.title}</h4>
-                    <p class="book-author">by ${book.author}</p>
-                    <span class="book-category">${book.category}</span>
-                    <p class="book-stock" style="color: ${stockColor}; font-weight: 500;">Stock: ${stockText}</p>
-                    <div style="display: flex; gap: 0.5rem; margin-top: 1rem; width: 100%;">
-                        <button class="btn btn-primary" style="flex: 1; padding: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem;" onclick="openEditModal('${encodedBook}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <div class="bg-card-bg border border-card-border rounded-xl p-4 flex flex-col items-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:border-primary relative">
+                    <img src="${imgUrl}" alt="${book.title} cover" class="w-full h-48 object-cover rounded-lg mb-4 shadow-sm">
+                    <h4 class="text-text-main text-lg font-serif font-bold mb-1 w-full truncate text-center" title="${book.title}">${book.title}</h4>
+                    <p class="text-text-muted text-sm mb-2 w-full truncate text-center">by ${book.author}</p>
+                    <span class="bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full mb-3">${book.category}</span>
+                    <p class="text-sm font-medium mb-4" style="color: ${stockColor};">Stock: ${stockText}</p>
+                    <div class="flex gap-2 w-full mt-auto">
+                        <button class="flex-1 bg-primary text-bg-dark font-semibold py-2 rounded-lg text-sm flex items-center justify-center gap-1 hover:opacity-90 transition-opacity whitespace-nowrap" onclick="openEditModal('${encodedBook}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                             Modify
                         </button>
-                        <button class="btn btn-danger" style="flex: 1; padding: 0.5rem; display: flex; align-items: center; justify-content: center; gap: 0.3rem;" onclick="deleteBook('${book._id}')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                        <button class="flex-1 bg-transparent border border-danger text-danger font-semibold py-2 rounded-lg text-sm flex items-center justify-center gap-1 hover:bg-danger/10 transition-colors whitespace-nowrap border-[1px]" onclick="deleteBook('${book._id}')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
                             Delete
                         </button>
                     </div>
@@ -279,7 +289,7 @@ async function loadBooks(searchQuery = '', silent = false) {
 
     } catch (err) {
         console.error(err);
-        grid.innerHTML = '<p style="color: var(--danger); text-align: center; width: 100%; grid-column: 1/-1;">Failed to load books.</p>';
+        grid.innerHTML = '<p class="col-span-full text-center text-danger py-8">Failed to load books.</p>';
     }
 }
 
@@ -637,7 +647,7 @@ function updateManualCover() {
 async function loadRequests(silent = false, searchQuery = '') {
     const tbody = document.querySelector('#requestsTable tbody');
     if (!silent) {
-        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center;">Loading...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-text-muted">Loading...</td></tr>';
     }
 
     try {
@@ -646,14 +656,18 @@ async function loadRequests(silent = false, searchQuery = '') {
             url += `?search=${encodeURIComponent(searchQuery)}`;
         }
         const res = await fetch(url, { headers: getHeaders() });
-        const data = await res.json();
+        let data = await res.json();
+        if (!Array.isArray(data)) {
+            console.error('API Error: Expected array of requests, got:', data);
+            data = [];
+        }
 
         requestsLoaded = true;
 
         tbody.innerHTML = ''; // Clear loading text
 
         if (data.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-muted);">No requests found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-text-muted">No requests found.</td></tr>';
             return;
         }
 
@@ -662,31 +676,48 @@ async function loadRequests(silent = false, searchQuery = '') {
 
             if (req.status === 'Requested') {
                 actions = `
-                    <button class="btn btn-success" style="background:var(--success); padding: 5px 10px;" onclick="updateStatus('${req._id}', 'Approved')">Approve</button>
-                    <button class="btn btn-danger" style="padding: 5px 10px;" onclick="updateStatus('${req._id}', 'Rejected')">Reject</button>
+                    <div class="flex gap-2 justify-end">
+                        <button class="bg-success text-white px-3 py-1.5 rounded text-sm font-semibold hover:-translate-y-0.5 transition-transform" onclick="updateStatus('${req._id}', 'Approved')">Approve</button>
+                        <button class="bg-danger text-white px-3 py-1.5 rounded text-sm font-semibold hover:-translate-y-0.5 transition-transform" onclick="updateStatus('${req._id}', 'Rejected')">Reject</button>
+                    </div>
                 `;
             } else if (req.status === 'Approved') {
                 actions = `
-                    <button class="btn btn-primary" style="padding: 5px 10px;" onclick="issueBook('${req._id}')">Issue</button>
-                    <button class="btn btn-danger" style="padding: 5px 10px;" onclick="updateStatus('${req._id}', 'Rejected')">Cancel</button>
+                    <div class="flex gap-2 justify-end">
+                        <button class="bg-primary text-bg-dark px-3 py-1.5 rounded text-sm font-semibold hover:-translate-y-0.5 transition-transform" onclick="issueBook('${req._id}')">Issue</button>
+                        <button class="bg-danger text-white px-3 py-1.5 rounded text-sm font-semibold hover:-translate-y-0.5 transition-transform" onclick="updateStatus('${req._id}', 'Rejected')">Cancel</button>
+                    </div>
                 `;
             } else if (req.status === 'Issued' || req.status === 'Overdue') {
                 actions = `
-                    <span style="background: rgba(255,193,7,0.2); color: var(--warning); padding: 5px 10px; border-radius: 4px; font-size: 0.85rem; border: 1px solid rgba(255,193,7,0.3);">
-                        <span style="font-size:1rem; vertical-align:middle;">📷</span> Awaiting Scan
-                    </span>
+                    <div class="flex justify-end">
+                        <span class="bg-warning/20 text-warning px-2.5 py-1 rounded text-xs border border-warning/30 flex items-center gap-1 w-fit">
+                            <span>📷</span> Awaiting Scan
+                        </span>
+                    </div>
                 `;
             } else {
-                actions = '-';
+                actions = '<div class="text-right">-</div>';
             }
 
-            const row = `<tr>
-                <td>${req.userId ? req.userId.name : 'Unknown'}</td>
-                <td>${req.bookId ? req.bookId.title : 'Deleted'}</td>
-                <td class="status-${req.status}">${req.status}</td>
-                <td>${req.issueDate ? new Date(req.issueDate).toLocaleDateString() : '-'}</td>
-                <td>${req.dueDate ? new Date(req.dueDate).toLocaleDateString() : '-'}</td>
-                <td>${actions}</td>
+            // Assign status col color
+            let statusColor = "text-text-muted";
+            if (req.status === 'Requested') statusColor = "text-secondary";
+            if (req.status === 'Approved') statusColor = "text-success";
+            if (req.status === 'Issued') statusColor = "text-primary";
+            if (req.status === 'Rejected') statusColor = "text-danger";
+            if (req.status === 'Returned') statusColor = "text-text-muted";
+            if (req.status === 'Overdue') statusColor = "text-warning";
+
+            const row = `<tr class="hover:bg-white/5 transition-colors">
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-main font-medium">${req.userId ? req.userId.name : 'Unknown'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-main">${req.bookId ? req.bookId.title : 'Deleted'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm font-bold tracking-[1px] uppercase ${statusColor}">${req.status}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-muted">${req.issueDate ? new Date(req.issueDate).toLocaleDateString() : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-muted">${req.dueDate ? new Date(req.dueDate).toLocaleDateString() : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color">
+                    ${actions}
+                </td>
             </tr>`;
             tbody.innerHTML += row;
         });

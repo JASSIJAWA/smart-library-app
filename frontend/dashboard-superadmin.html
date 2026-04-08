@@ -5,310 +5,210 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SaaS Global Architecture</title>
-    <!-- Use the existing global styling -->
+    <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme.js"></script>
-    <style>
-        .tenant-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .tenant-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 8px; /* Classic */
-            padding: 1.5rem;
-            transition: var(--transition);
-            position: relative;
-            box-shadow: var(--glass-shadow);
-        }
-
-        .tenant-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--primary);
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-
-        .tenant-badge {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .tenant-badge.active {
-            background: rgba(56, 189, 248, 0.1);
-            color: var(--success);
-        }
-
-        .tenant-badge.suspended {
-            background: rgba(239, 68, 68, 0.1);
-            color: var(--danger);
-        }
-
-        .tenant-stats {
-            display: flex;
-            justify-content: space-between;
-            margin-top: 1.5rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--card-border);
-        }
-
-        .t-stat {
-            text-align: center;
-        }
-
-        .t-stat span {
-            display: block;
-            font-family: 'Playfair Display', serif;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-        }
-
-        .t-stat small {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            text-transform: uppercase;
-        }
-
-        /* Modal tweaks for provisioning */
-        .modal-content.wide {
-            max-width: 600px;
-        }
-    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-bg-dark text-text-main font-sans min-h-screen">
     <!-- Super Admin Navigation -->
-    <nav>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <svg style="width: 28px; height: 28px; color: var(--primary);" fill="none"
-                stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10">
-                </path>
+    <nav class="sticky top-0 bg-nav-bg/95 backdrop-blur-md border-b border-card-border px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 z-[100] shadow-md w-full">
+        <div class="flex items-center gap-3 sm:gap-6 w-full justify-between sm:w-auto">
+            <svg class="w-6 h-6 sm:w-7 sm:h-7 text-primary hidden sm:block" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
             </svg>
-            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text">Command Center</h2>
-            <span style="font-size: 0.8rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Super Admin</span>
+            <h2 class="m-0 text-xl sm:text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#f5e6a3]">Command Center</h2>
+            <span class="text-xs text-primary font-bold tracking-[2px] uppercase">Super Admin</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <button class="btn btn-primary" onclick="openProvisionModal()"
-                style="display: flex; align-items: center; gap: 0.5rem;">
-                <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+        <div class="flex items-center gap-4 sm:gap-6 w-full justify-center sm:justify-end">
+            <button class="px-4 sm:px-6 py-2 sm:py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg flex items-center gap-2 text-xs sm:text-sm" onclick="openProvisionModal()">
+                <svg class="w-4 h-4 sm:w-[18px] sm:h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
                 </svg>
-                Provision Library
+                Provision
             </button>
-            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn"
-                title="Toggle Light/Dark Theme"></button>
-            <a href="#" id="logoutBtn" class="logout-link" onclick="superAdminLogout()">Disconnect</a>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-gray-500/15" title="Toggle Light/Dark Theme"></button>
+            <a href="#" id="logoutBtn" class="text-danger font-semibold tracking-[0.5px] uppercase no-underline transition-all duration-300 hover:text-[#ff6b6b] hover:drop-shadow-[0_0_8px_rgba(239,68,68,0.5)] text-sm sm:text-base" onclick="superAdminLogout()">Disconnect</a>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="max-w-[1400px] w-[95%] mx-auto mt-8 relative z-10 pb-[100px]">
 
         <!-- Global Analytics Grid -->
-        <h2 style="font-size: 1.6rem; margin-bottom: 1.5rem; color: var(--text-main);">Platform Yield Aggregation</h2>
-        <div class="card-grid" style="margin-bottom: 3rem;">
-            <div class="stat-card">
-                <div class="stat-value" id="statTotalTenants">-</div>
-                <div class="stat-label">Total Tenants</div>
+        <h2 class="text-[1.6rem] mb-6 text-text-main font-serif">Platform Yield Aggregation</h2>
+        <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6 mb-12">
+            <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-primary">
+                <div class="font-serif text-[2.5rem] font-bold text-text-main mb-2" id="statTotalTenants">-</div>
+                <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Total Tenants</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statActiveTenants" style="color: var(--success);">-</div>
-                <div class="stat-label">Active Tenants</div>
+            <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-success">
+                <div class="font-serif text-[2.5rem] font-bold text-success mb-2" id="statActiveTenants">-</div>
+                <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Active Tenants</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statTotalUsers" style="color: var(--warning);">-</div>
-                <div class="stat-label">Total Network Users</div>
+            <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-warning">
+                <div class="font-serif text-[2.5rem] font-bold text-warning mb-2" id="statTotalUsers">-</div>
+                <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Total Network Users</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value" id="statTotalBooks" style="color: var(--primary);">-</div>
-                <div class="stat-label">Total Stored Books</div>
+            <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-primary">
+                <div class="font-serif text-[2.5rem] font-bold text-primary mb-2" id="statTotalBooks">-</div>
+                <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Total Stored Books</div>
             </div>
         </div>
 
         <!-- Tenants Grid -->
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
-            <h2 style="font-size: 1.6rem; color: var(--text-main); margin: 0;">Library Instances Matrix</h2>
-            <button class="btn"
-                style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
-                onclick="loadTenantsGrid()">Refresh Matrix</button>
+        <div class="flex justify-between items-end mb-6">
+            <h2 class="text-[1.6rem] text-text-main m-0 font-serif">Library Instances Matrix</h2>
+            <button class="px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-text-muted text-text-main hover:bg-white/5" onclick="loadTenantsGrid()">Refresh Matrix</button>
         </div>
 
-        <div id="tenantsGrid" class="tenant-grid">
+        <div id="tenantsGrid" class="grid grid-cols-[repeat(auto-fill,minmax(320px,1fr))] gap-6 mt-6">
             <!-- Dynamically populated tenant cards -->
         </div>
 
     </div>
 
     <!-- Provisioning Modal -->
-    <div id="provisionModal" class="modal hidden">
-        <div class="modal-content glass-panel wide">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--primary); font-size: 1.5rem;">Provision New SaaS Tenant</h3>
-                <button class="btn btn-danger" style="padding: 0.5rem 1rem;"
-                    onclick="closeProvisionModal()">Close</button>
+    <div id="provisionModal" class="modal hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[1000] flex items-center justify-center opacity-0 invisible pointer-events-none transition-all duration-300 [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:visible [&:not(.hidden)]:pointer-events-auto">
+        <div class="bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] w-[90%] max-w-[600px] transform transition-transform duration-300 scale-95 [&:not(.hidden)>div]:scale-100 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-primary text-2xl font-serif font-bold">Provision New SaaS Tenant</h3>
+                <button class="px-4 py-2 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-danger text-white shadow-md hover:-translate-y-0.5" onclick="closeProvisionModal()">Close</button>
             </div>
             <form id="provisionForm">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <h4
-                            style="color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card-border);">
-                            Institution Details</h4>
-                        <div class="form-group">
-                            <label>Institution Name <span style="color:red">*</span></label>
-                            <input type="text" id="tenantName" placeholder="e.g. Harvard Law School" required>
+                        <h4 class="text-text-main mb-4 pb-2 border-b border-card-border font-serif text-lg">Institution Details</h4>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Institution Name <span class="text-danger">*</span></label>
+                            <input type="text" id="tenantName" placeholder="e.g. Harvard Law School" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group">
-                            <label>Secure Subdomain <span style="color:red">*</span></label>
-                            <div style="display: flex; align-items: center;">
-                                <input type="text" id="tenantSubdomain" placeholder="harvard" required
-                                    style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                                <span
-                                    style="background: var(--bg-deep); padding: 0.8rem; border: 1px solid var(--card-border); border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px; color: var(--text-muted);">.loca.lt</span>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Secure Subdomain <span class="text-danger">*</span></label>
+                            <div class="flex items-center">
+                                <input type="text" id="tenantSubdomain" placeholder="harvard" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-l-xl text-text-main focus:outline-none focus:border-primary border-r-0">
+                                <span class="bg-[#0f172a] px-3 py-3 border border-card-border border-l-0 rounded-r-xl text-text-muted whitespace-nowrap">.loca.lt</span>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label>Primary Brand Color (Optional)</label>
-                            <input type="color" id="tenantPrimaryColor" value="#2563eb"
-                                style="height: 50px; padding: 0.2rem; cursor: pointer;">
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Primary Brand Color (Optional)</label>
+                            <input type="color" id="tenantPrimaryColor" value="#2563eb" class="w-full h-[50px] p-1 cursor-pointer bg-black/20 border border-card-border rounded-xl">
                         </div>
                     </div>
                     <div>
-                        <h4
-                            style="color: var(--text-color); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--card-border);">
-                            Head Librarian Assignment</h4>
-                        <div class="form-group">
-                            <label>Admin Full Name <span style="color:red">*</span></label>
-                            <input type="text" id="adminName" placeholder="Jane Doe" required>
+                        <h4 class="text-text-main mb-4 pb-2 border-b border-card-border font-serif text-lg">Head Librarian Assignment</h4>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Admin Full Name <span class="text-danger">*</span></label>
+                            <input type="text" id="adminName" placeholder="Jane Doe" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group">
-                            <label>Admin Email <span style="color:red">*</span></label>
-                            <input type="email" id="adminEmail" placeholder="admin@harvard.edu" required>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Admin Email <span class="text-danger">*</span></label>
+                            <input type="email" id="adminEmail" placeholder="admin@harvard.edu" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group">
-                            <label>Admin Password <span style="color:red">*</span></label>
-                            <input type="text" id="adminPassword" placeholder="Initial Password" required>
+                        <div class="mb-5">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Admin Password <span class="text-danger">*</span></label>
+                            <input type="text" id="adminPassword" placeholder="Initial Password" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
                     </div>
                 </div>
-                <div class="form-group" style="margin-top: 1.5rem;">
-                    <label>Tenant Official Logo (Optional)</label>
-                    <input type="file" id="tenantLogo" accept="image/*" style="width: 100%; border: 1px dashed var(--card-border); padding: 1rem; background: rgba(0,0,0,0.1);">
+                <div class="mb-5 mt-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Tenant Official Logo (Optional)</label>
+                    <input type="file" id="tenantLogo" accept="image/*" class="w-full border border-dashed border-card-border p-4 bg-black/10 rounded-xl text-text-main cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-bg-dark hover:file:bg-primary-glow">
                 </div>
-                <button type="submit" class="btn btn-primary"
-                    style="width: 100%; margin-top: 2rem; font-size: 1.1rem; padding: 1rem;">Allocate Server Resources &
-                    Initialize Library</button>
+                <button type="submit" class="w-full mt-8 px-7 py-4 rounded-xl font-semibold text-[1.1rem] uppercase transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Allocate Server Resources & Initialize Library</button>
             </form>
         </div>
     </div>
 
     <!-- Tenant Details Modal -->
-    <div id="tenantDetailsModal" class="modal hidden">
-        <div class="modal-content glass-panel" style="max-width: 500px; width: 90%;">
-            <button class="close-btn" onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')"
-                style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
-            <h3
-                style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">
-                Tenant Configuration</h3>
+    <div id="tenantDetailsModal" class="modal hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[1000] flex items-center justify-center opacity-0 invisible pointer-events-none transition-all duration-300 [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:visible [&:not(.hidden)]:pointer-events-auto">
+        <div class="bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] w-[90%] max-w-[500px] relative transform transition-transform duration-300 scale-95 [&:not(.hidden)>div]:scale-100">
+            <button class="absolute right-6 top-6 bg-transparent border-none text-text-main text-3xl cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-300" onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">&times;</button>
+            <h3 class="text-primary text-2xl font-serif font-bold mb-6 border-b border-card-border pb-2">Tenant Configuration</h3>
 
-            <div
-                style="display: grid; grid-template-columns: 120px 1fr; gap: 1rem; text-align: left; margin-bottom: 2rem;">
-                <strong style="color: var(--text-muted);">Name:</strong>
-                <span id="detailName" style="color: var(--text-main);"></span>
+            <div class="grid grid-cols-[120px_1fr] gap-4 text-left mb-8">
+                <strong class="text-text-muted font-semibold tracking-[0.5px]">Name:</strong>
+                <span id="detailName" class="text-text-main"></span>
 
-                <strong style="color: var(--text-muted);">Admin:</strong>
-                <span id="detailAdminName" style="color: var(--text-main);"></span>
+                <strong class="text-text-muted font-semibold tracking-[0.5px]">Admin:</strong>
+                <span id="detailAdminName" class="text-text-main"></span>
 
-                <strong style="color: var(--text-muted);">Email:</strong>
-                <span id="detailAdminEmail" style="color: var(--text-main);"></span>
+                <strong class="text-text-muted font-semibold tracking-[0.5px]">Email:</strong>
+                <span id="detailAdminEmail" class="text-text-main"></span>
 
-                <strong style="color: var(--text-muted);">Subdomain:</strong>
-                <span id="detailSubdomain" style="color: var(--primary); font-family: monospace;"></span>
+                <strong class="text-text-muted font-semibold tracking-[0.5px]">Subdomain:</strong>
+                <span id="detailSubdomain" class="text-primary font-mono bg-black/20 px-2 py-0.5 rounded border border-card-border"></span>
 
-                <strong style="color: var(--text-muted);">Primary Color:</strong>
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <div id="detailColorSwatch"
-                        style="width: 24px; height: 24px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2);">
-                    </div>
-                    <span id="detailColorHex" style="color: var(--text-main); font-family: monospace;"></span>
+                <strong class="text-text-muted font-semibold tracking-[0.5px] mt-1">Primary Color:</strong>
+                <div class="flex items-center gap-2 mt-1">
+                    <div id="detailColorSwatch" class="w-6 h-6 rounded border border-white/20 shadow-sm"></div>
+                    <span id="detailColorHex" class="text-text-main font-mono"></span>
                 </div>
             </div>
 
-            <div style="display: flex; gap: 1rem;">
-                <button class="btn btn-primary" style="flex: 1;" onclick="openTenantSettings()">Edit Settings</button>
-                <button class="btn" style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
-                    onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">Close</button>
+            <div class="flex gap-4">
+                <button class="flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-primary text-bg-dark shadow-md hover:-translate-y-0.5" onclick="openTenantSettings()">Edit Settings</button>
+                <button class="flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-transparent border border-text-muted text-text-main hover:bg-white/5" onclick="document.getElementById('tenantDetailsModal').classList.add('hidden')">Close</button>
             </div>
         </div>
     </div>
 
     <!-- Edit Tenant Settings Modal -->
-    <div id="tenantSettingsModal" class="modal hidden">
-        <div class="modal-content glass-panel" style="max-width: 500px; width: 90%;">
-            <button class="close-btn" onclick="document.getElementById('tenantSettingsModal').classList.add('hidden'); document.getElementById('tenantDetailsModal').classList.remove('hidden');"
-                style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
-            <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--card-border); padding-bottom: 0.5rem;">Edit Tenant Settings</h3>
+    <div id="tenantSettingsModal" class="modal hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[1000] flex items-center justify-center opacity-0 invisible pointer-events-none transition-all duration-300 [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:visible [&:not(.hidden)]:pointer-events-auto">
+        <div class="bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] w-[90%] max-w-[500px] relative transform transition-transform duration-300 scale-95 [&:not(.hidden)>div]:scale-100">
+            <button class="absolute right-6 top-6 bg-transparent border-none text-text-main text-3xl cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-300" onclick="document.getElementById('tenantSettingsModal').classList.add('hidden'); document.getElementById('tenantDetailsModal').classList.remove('hidden');">&times;</button>
+            <h3 class="text-primary text-2xl font-serif font-bold mb-6 border-b border-card-border pb-2">Edit Tenant Settings</h3>
 
             <form id="tenantSettingsForm">
                 <input type="hidden" id="editTenantId">
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Institution Name</label>
-                    <input type="text" id="editTenantName" required style="width: 100%;">
+                <div class="mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Institution Name</label>
+                    <input type="text" id="editTenantName" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                 </div>
                 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Secure Subdomain</label>
-                    <div style="display: flex; align-items: center;">
-                        <input type="text" id="editTenantSubdomain" required style="width: 100%; border-top-right-radius: 0; border-bottom-right-radius: 0;">
-                        <span style="background: var(--bg-deep); padding: 0.8rem; border: 1px solid var(--card-border); border-left: none; border-top-right-radius: 8px; border-bottom-right-radius: 8px; color: var(--text-muted);">.loca.lt</span>
+                <div class="mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Secure Subdomain</label>
+                    <div class="flex items-center">
+                        <input type="text" id="editTenantSubdomain" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-l-xl text-text-main focus:outline-none focus:border-primary border-r-0">
+                        <span class="bg-[#0f172a] px-3 py-3 border border-card-border border-l-0 rounded-r-xl text-text-muted whitespace-nowrap">.loca.lt</span>
                     </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Primary Brand Color</label>
-                    <input type="color" id="editTenantPrimaryColor" style="height: 50px; padding: 0.2rem; cursor: pointer; width: 100%;">
+                <div class="mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Primary Brand Color</label>
+                    <input type="color" id="editTenantPrimaryColor" class="w-full h-[50px] p-1 cursor-pointer bg-black/20 border border-card-border rounded-xl">
                 </div>
 
-                <div class="form-group" style="margin-bottom: 1.5rem;">
-                    <label>Upload New Logo (Overwrites current)</label>
-                    <input type="file" id="editTenantLogo" accept="image/*" style="width: 100%; border: 1px dashed var(--card-border); padding: 1rem; background: rgba(0,0,0,0.1);">
+                <div class="mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Upload New Logo (Overwrites current)</label>
+                    <input type="file" id="editTenantLogo" accept="image/*" class="w-full border border-dashed border-card-border p-4 bg-black/10 rounded-xl text-text-main cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-bg-dark hover:file:bg-primary-glow">
                 </div>
                 
-                <div class="form-group" style="margin-bottom: 2rem;">
-                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                        <input type="checkbox" id="editTenantIsActive" style="width: 20px; height: 20px;">
-                        <span>Account Active / Not Suspended</span>
+                <div class="mb-8">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="checkbox" id="editTenantIsActive" class="w-5 h-5 accent-primary cursor-pointer">
+                        <span class="text-text-main group-hover:text-primary transition-colors">Account Active / Not Suspended</span>
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 1rem; font-size: 1.1rem;">Save Changes</button>
+                <button type="submit" class="w-full px-7 py-4 rounded-xl font-semibold text-[1.1rem] uppercase transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Save Changes</button>
             </form>
         </div>
     </div>
 
-    <!-- Universal Custom Modal from previous phases -->
-    <div id="customModal" class="modal hidden">
-        <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
-            <h3 id="customModalTitle" style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem;">
-                Notification</h3>
-            <p id="customModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;"></p>
-            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
-                <input type="text" id="customModalInput" style="width: 100%; text-align: center;">
+    <!-- Universal Custom Modal -->
+    <div id="customModal" class="modal hidden fixed inset-0 bg-black/60 backdrop-blur-md z-[1000] flex items-center justify-center opacity-0 invisible pointer-events-none transition-all duration-300 [&:not(.hidden)]:opacity-100 [&:not(.hidden)]:visible [&:not(.hidden)]:pointer-events-auto">
+        <div class="bg-card-bg border border-card-border rounded-xl p-10 shadow-[0_10px_40px_rgba(0,0,0,0.5)] w-[90%] max-w-[450px] text-center transform transition-transform duration-300 scale-95 [&:not(.hidden)>div]:scale-100">
+            <h3 id="customModalTitle" class="text-primary text-2xl font-serif font-bold mb-4">Notification</h3>
+            <p id="customModalMessage" class="text-text-main leading-relaxed mb-6"></p>
+            <div id="customModalInputContainer" class="hidden mb-8">
+                <input type="text" id="customModalInput" class="w-full text-center px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
             </div>
-            <div style="display: flex; gap: 1rem; justify-content: center;">
-                <button id="customModalCancelBtn" class="btn hidden"
-                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
-                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            <div class="flex gap-4 justify-center">
+                <button id="customModalCancelBtn" class="hidden flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-transparent border border-text-muted text-text-main hover:bg-white/5">Cancel</button>
+                <button id="customModalConfirmBtn" class="flex-1 px-6 py-3 rounded-lg font-semibold uppercase tracking-[1px] transition-all bg-primary text-bg-dark shadow-md hover:-translate-y-0.5">OK</button>
             </div>
         </div>
     </div>

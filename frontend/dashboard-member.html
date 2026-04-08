@@ -5,98 +5,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Member Dashboard | Smart Library</title>
+    <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-bg-dark text-text-main font-sans min-h-screen">
     <!-- Animated Orbs -->
-    <div class="bg-orbs">
+    <div class="hidden">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
 
-    <nav>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <img id="navTenantLogo" src="" alt="Brand" style="display: none; height: 35px; border-radius: 4px; object-fit: contain;">
-            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text navbar-brand-text">Smart Library</h2>
-            <span
-                style="font-size: 0.8rem; color: var(--primary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Member</span>
+    <nav class="sticky top-0 bg-nav-bg/95 backdrop-blur-md border-b border-card-border px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 z-[100] shadow-md w-full">
+        <div class="flex items-center gap-3 sm:gap-6 w-full justify-between sm:w-auto">
+            <img id="navTenantLogo" src="" alt="Brand" class="hidden h-[35px] rounded border border-card-border bg-white shadow-sm object-contain">
+            <h2 class="m-0 text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#f5e6a3] navbar-brand-text">Smart Library</h2>
+            <span class="text-xs text-primary font-bold tracking-[2px] uppercase">Member</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="flex items-center gap-2 sm:gap-6 w-full justify-center sm:justify-end">
             <!-- Collapsible Search Bar -->
-            <div class="nav-search-container">
-                <input type="text" id="navSearchInput" class="nav-search-input" placeholder="Search books..."
-                    oninput="debounceSearch()">
-                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="theme-btn" title="Search Library">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        style="pointer-events: none;">
+            <div class="nav-search-container relative flex items-center">
+                <input type="text" id="navSearchInput" class="nav-search-input w-0 opacity-0 transition-all duration-300 ease-in-out px-0 py-2 bg-transparent border-b border-card-border text-text-main focus:outline-none focus:border-primary [&.active]:opacity-100 [&.active]:absolute [&.active]:left-10 [&.active]:top-1/2 [&.active]:-translate-y-1/2 [&.active]:w-[200px] [&.active]:bg-bg-dark [&.active]:z-[50] [&.active]:px-3 [&.active]:rounded-md md:[&.active]:static md:[&.active]:translate-y-0 md:[&.active]:w-[250px] md:[&.active]:bg-transparent md:[&.active]:z-auto md:[&.active]:px-2 md:[&.active]:rounded-none" placeholder="Search books..." oninput="debounceSearch()">
+                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-white/10 hover:text-primary z-10" title="Search Library">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
             </div>
 
-            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn"
-                title="Toggle Light/Dark Theme"></button>
-            <span id="userName" style="font-weight: 500; color: var(--text-main);">User</span>
-            <a href="#" id="logoutBtn" class="logout-link">Logout</a>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-white/10" title="Toggle Light/Dark Theme"></button>
+            <span id="userName" class="font-medium text-text-main">User</span>
+            <a href="#" id="logoutBtn" class="text-danger font-semibold tracking-[0.5px] uppercase no-underline transition-all duration-300 hover:text-[#ff6b6b]">Logout</a>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="max-w-[1400px] w-[95%] mx-auto mt-8 relative z-10 pb-[100px]">
         <!-- Section Toggles -->
-        <div class="tab-container">
-            <button class="btn btn-primary active" id="btn-booksSection" onclick="showSection('booksSection')">Browse
-                Books</button>
-            <button class="btn btn-primary" id="btn-requestsSection" onclick="showSection('requestsSection')">My
-                Requests</button>
+        <div class="tab-container flex gap-4 mb-8 border-b border-card-border pb-4 overflow-x-auto snap-x">
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md active" id="btn-booksSection" onclick="showSection('booksSection')">Browse Books</button>
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md" id="btn-requestsSection" onclick="showSection('requestsSection')">My Requests</button>
         </div>
 
         <!-- Available Books Section -->
         <div id="booksSection">
             <!-- Available Books Header & View Toggle -->
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                <h4 style="color: var(--primary); margin: 0;">Explore Collection</h4>
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div id="bookCountBadge"
-                        style="background: var(--primary-glow); color: var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(0, 229, 255, 0.2);">
-                        Loading...
-                    </div>
-                    <div class="view-toggles"
-                        style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.1); padding: 0.3rem; border-radius: 8px;">
-                        <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active"
-                            title="Grid View"
-                            style="background: var(--card-bg); border: none; color: var(--primary); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <rect x="3" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="3" width="7" height="7"></rect>
-                                <rect x="14" y="14" width="7" height="7"></rect>
-                                <rect x="3" y="14" width="7" height="7"></rect>
-                            </svg>
-                        </button>
-                        <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn"
-                            title="List View"
-                            style="background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <line x1="8" y1="6" x2="21" y2="6"></line>
-                                <line x1="8" y1="12" x2="21" y2="12"></line>
-                                <line x1="8" y1="18" x2="21" y2="18"></line>
-                                <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                                <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                                <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                            </svg>
-                        </button>
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 mb-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <h4 class="text-primary font-serif text-xl m-0 font-semibold">Explore Collection</h4>
+                    <div class="flex items-center gap-4">
+                        <div id="bookCountBadge" class="bg-primary/10 text-primary px-4 py-1.5 rounded-full font-semibold text-sm border border-primary/20 shadow-[0_0_10px_rgba(212,175,55,0.1)]">
+                            Loading...
+                        </div>
+                        <div class="flex gap-2 bg-black/10 p-1.5 rounded-lg">
+                            <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active [&.active]:bg-card-bg [&.active]:text-primary [&.active]:shadow-sm bg-transparent border-none text-text-muted p-2 rounded-md cursor-pointer transition-all duration-300 hover:text-text-main" title="Grid View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <rect x="3" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="3" width="7" height="7"></rect>
+                                    <rect x="14" y="14" width="7" height="7"></rect>
+                                    <rect x="3" y="14" width="7" height="7"></rect>
+                                </svg>
+                            </button>
+                            <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn [&.active]:bg-card-bg [&.active]:text-primary [&.active]:shadow-sm bg-transparent border-none text-text-muted p-2 rounded-md cursor-pointer transition-all duration-300 hover:text-text-main" title="List View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="8" y1="6" x2="21" y2="6"></line>
+                                    <line x1="8" y1="12" x2="21" y2="12"></line>
+                                    <line x1="8" y1="18" x2="21" y2="18"></line>
+                                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <div id="booksGrid" class="book-grid">
+                <div id="booksGrid" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 [&.list-view]:block [&.list-view>div]:flex [&.list-view>div]:items-center [&.list-view>div]:text-left [&.list-view>div]:gap-4 [&.list-view>div]:mb-4 [&.list-view_img]:w-16 [&.list-view_img]:h-20 [&.list-view_img]:mb-0 [&.list-view_h4]:mb-1 [&.list-view_p]:mb-1">
                     <!-- Books injected dynamically -->
                 </div>
             </div>
@@ -104,23 +92,23 @@
 
         <!-- My Requests Section -->
         <div id="requestsSection" class="hidden">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">My Request History</h3>
-            <div class="glass-panel" style="padding: 2rem;">
-                <div class="table-container">
-                    <table id="requestsTable">
+            <h3 class="font-serif text-3xl font-bold mb-6 text-text-main">My Request History</h3>
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div class="w-full overflow-x-auto">
+                    <table id="requestsTable" class="w-full border-collapse">
                         <thead>
-                            <tr>
-                                <th>Book Title</th>
-                                <th>Author</th>
-                                <th>Status</th>
-                                <th>OTP Code</th>
-                                <th>Issue Date</th>
-                                <th>Due Date</th>
-                                <th>Return Date</th>
-                                <th>Fine</th>
+                            <tr class="border-b-2 border-border-color">
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Book Title</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Author</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Status</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm hidden-mobile">OTP Code</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm hidden-mobile">Issue Date</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Due Date</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm hidden-mobile">Return Date</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Fine</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-border-color">
                             <!-- Requests loaded here -->
                         </tbody>
                     </table>
@@ -130,23 +118,19 @@
     </div>
 
     <!-- Universal Custom Modal -->
-    <div id="customModal" class="modal hidden">
-        <div class="modal-content glass-panel"
-            style="max-width: 450px; width: 90%; position: relative; padding: 2.5rem; text-align: center; border-radius: 20px;">
-            <h3 id="customModalTitle" style="margin-bottom: 1rem; font-size: 1.6rem; color: var(--primary);">
+    <div id="customModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+        <div class="bg-card-bg border border-card-border rounded-[20px] w-[90%] max-w-[450px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-10 text-center relative">
+            <h3 id="customModalTitle" class="mb-4 font-serif text-2xl font-bold text-primary">
                 Notification</h3>
-            <p id="customModalMessage"
-                style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.5;"></p>
+            <p id="customModalMessage" class="mb-6 text-text-main text-[1.1rem] leading-relaxed"></p>
 
-            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
-                <input type="number" id="customModalInput"
-                    style="width: 100%; text-align: center; font-size: 1.1rem; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main);">
+            <div id="customModalInputContainer" class="hidden mb-8">
+                <input type="number" id="customModalInput" class="w-full text-center text-[1.1rem] px-4 py-3 border border-card-border rounded-lg bg-black/20 text-text-main focus:outline-none focus:border-primary">
             </div>
 
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-                <button id="customModalCancelBtn" class="btn hidden"
-                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
-                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            <div class="flex gap-4 justify-center mt-4">
+                <button id="customModalCancelBtn" class="hidden flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-text-muted text-text-main hover:bg-white/5">Cancel</button>
+                <button id="customModalConfirmBtn" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">OK</button>
             </div>
         </div>
     </div>
@@ -162,7 +146,7 @@
             if (typeof originalShowSection === 'function') {
                 window.showSection = function (sectionId) {
                     originalShowSection(sectionId);
-                    document.querySelectorAll('.tab-container .btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-container button').forEach(btn => btn.classList.remove('active'));
                     const activeBtn = document.getElementById('btn-' + sectionId);
                     if (activeBtn) activeBtn.classList.add('active');
                 };

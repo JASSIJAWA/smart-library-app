@@ -5,175 +5,151 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Librarian Dashboard | Smart Library</title>
+    <!-- Compiled Tailwind CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Scripts will be moved to the bottom -->
+    <script src="js/theme.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body>
+<body class="bg-bg-dark text-text-main font-sans min-h-screen">
     <!-- Animated Orbs -->
-    <div class="bg-orbs">
+    <div class="hidden">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
 
-    <nav>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
-            <img id="navTenantLogo" src="" alt="Brand" style="display: none; height: 35px; border-radius: 4px; object-fit: contain;">
-            <h2 style="margin: 0; font-size: 1.5rem;" class="gradient-text navbar-brand-text">Smart Library</h2>
-            <span
-                style="font-size: 0.8rem; color: var(--secondary); font-weight: 700; letter-spacing: 2px; text-transform: uppercase;">Librarian</span>
+    <nav class="sticky top-0 bg-nav-bg/95 backdrop-blur-md border-b border-card-border px-4 sm:px-8 py-3 sm:py-4 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-0 z-[100] shadow-md w-full">
+        <div class="flex items-center gap-3 sm:gap-6 w-full justify-between sm:w-auto">
+            <img id="navTenantLogo" src="" alt="Brand" class="hidden h-[35px] rounded border border-card-border bg-white shadow-sm object-contain">
+            <h2 class="m-0 text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#f5e6a3] navbar-brand-text">Smart Library</h2>
+            <span class="text-xs text-secondary font-bold tracking-[2px] uppercase">Librarian</span>
         </div>
-        <div style="display: flex; align-items: center; gap: 1.5rem;">
+        <div class="flex items-center gap-2 sm:gap-6 w-full justify-center sm:justify-end">
             <!-- Collapsible Search Bar -->
-            <div class="nav-search-container">
-                <input type="text" id="navSearchInput" class="nav-search-input" placeholder="Search books..."
-                    oninput="debounceSearch()">
-                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="theme-btn" title="Search Library">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                        style="pointer-events: none;">
+            <div class="nav-search-container relative flex items-center">
+                <input type="text" id="navSearchInput" class="nav-search-input w-0 opacity-0 transition-all duration-300 ease-in-out px-0 py-2 bg-transparent border-b border-card-border text-text-main focus:outline-none focus:border-primary [&.active]:opacity-100 [&.active]:absolute [&.active]:left-10 [&.active]:top-1/2 [&.active]:-translate-y-1/2 [&.active]:w-[200px] [&.active]:bg-bg-dark [&.active]:z-[50] [&.active]:px-3 [&.active]:rounded-md md:[&.active]:static md:[&.active]:translate-y-0 md:[&.active]:w-[250px] md:[&.active]:bg-transparent md:[&.active]:z-auto md:[&.active]:px-2 md:[&.active]:rounded-none" placeholder="Search books..." oninput="debounceSearch()">
+                <button id="searchToggleBtn" onclick="toggleNavSearch()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-white/10 hover:text-primary z-10" title="Search Library">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="pointer-events-none">
                         <circle cx="11" cy="11" r="8"></circle>
                         <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                     </svg>
                 </button>
             </div>
 
-            <button id="configModalBtn" onclick="document.getElementById('configModal').classList.remove('hidden'); fetchCurrentConfig();" class="theme-btn" title="Tenant Configuration">
+            <button id="configModalBtn" onclick="document.getElementById('configModal').classList.remove('hidden'); fetchCurrentConfig();" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-white/10 hover:text-primary" title="Tenant Configuration">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
             </button>
-            <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
-            <span id="userName" style="font-weight: 500; color: var(--text-main);">Librarian</span>
-            <a href="#" id="logoutBtn" class="logout-link">Logout</a>
+            <button id="themeToggleBtn" onclick="toggleTheme()" class="bg-transparent border-none text-text-main cursor-pointer flex items-center justify-center p-2 rounded-full transition-all duration-300 hover:bg-white/10" title="Toggle Light/Dark Theme"></button>
+            <span id="userName" class="font-medium text-text-main">Librarian</span>
+            <a href="#" id="logoutBtn" class="text-danger font-semibold tracking-[0.5px] uppercase no-underline transition-all duration-300 hover:text-[#ff6b6b]">Logout</a>
         </div>
     </nav>
 
-    <div class="container">
+    <div class="max-w-[1400px] w-[95%] mx-auto mt-8 relative z-10 pb-[100px]">
         <!-- Section Toggles -->
-        <div class="tab-container">
-            <button class="btn btn-primary active" id="btn-overviewSection"
-                onclick="showSection('overviewSection')">Overview</button>
-            <button class="btn btn-primary" id="btn-booksSection" onclick="showSection('booksSection')">Manage
-                Books</button>
-            <button class="btn btn-primary" id="btn-categoriesSection"
-                onclick="showSection('categoriesSection')">Categories</button>
-            <button class="btn btn-primary" id="btn-requestsSection"
-                onclick="showSection('requestsSection')">Requests</button>
+        <div class="tab-container flex gap-4 mb-8 border-b border-card-border pb-4 overflow-x-auto snap-x">
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md active" id="btn-overviewSection" onclick="showSection('overviewSection')">Overview</button>
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md" id="btn-booksSection" onclick="showSection('booksSection')">Manage Books</button>
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md" id="btn-categoriesSection" onclick="showSection('categoriesSection')">Categories</button>
+            <button class="snap-start whitespace-nowrap px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent text-text-main hover:bg-white/5 [&.active]:bg-primary [&.active]:text-bg-dark [&.active]:shadow-md" id="btn-requestsSection" onclick="showSection('requestsSection')">Requests</button>
         </div>
 
         <!-- Overview Section -->
         <div id="overviewSection">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Dashboard Overview</h3>
-            <div class="card-grid">
-                <div class="stat-card" style="cursor: pointer; transition: transform 0.2s;"
-                    onclick="focusBookDirectory()" onmouseover="this.style.transform='translateY(-5px)'"
-                    onmouseout="this.style.transform='translateY(0)'">
-                    <div id="totalBooks" class="stat-value">0</div>
-                    <div class="stat-label">Total Books <span style="font-size: 0.7rem; opacity: 0.7;">(Click to
-                            view)</span></div>
+            <h3 class="font-serif text-3xl font-bold mb-6 text-text-main">Dashboard Overview</h3>
+            <div class="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-6">
+                <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-primary cursor-pointer" onclick="focusBookDirectory()">
+                    <div id="totalBooks" class="font-serif text-[2.5rem] font-bold text-text-main mb-2">0</div>
+                    <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold text-center">Total Books <span class="block mt-1 text-[11px] opacity-70">(Click to view)</span></div>
                 </div>
-                <div class="stat-card">
-                    <div id="totalIssued" class="stat-value">0</div>
-                    <div class="stat-label">Issued Books</div>
+                <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-primary">
+                    <div id="totalIssued" class="font-serif text-[2.5rem] font-bold text-text-main mb-2">0</div>
+                    <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Issued Books</div>
                 </div>
-                <div class="stat-card">
-                    <div id="totalOverdue" class="stat-value">0</div>
-                    <div class="stat-label">Overdue Books</div>
+                <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-warning">
+                    <div id="totalOverdue" class="font-serif text-[2.5rem] font-bold text-warning mb-2">0</div>
+                    <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Overdue Books</div>
                 </div>
-                <div class="stat-card">
-                    <div id="totalFine" class="stat-value">$0</div>
-                    <div class="stat-label">Total Fines</div>
+                <div class="bg-card-bg border border-card-border p-6 rounded-xl flex flex-col justify-center items-center h-full transition-all duration-300 shadow-[0_4px_15px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(0,0,0,0.2)] hover:border-danger">
+                    <div id="totalFine" class="font-serif text-[2.5rem] font-bold text-danger mb-2">$0</div>
+                    <div class="text-text-muted text-sm uppercase tracking-[1px] font-semibold">Total Fines</div>
                 </div>
             </div>
         </div>
 
         <!-- Manage Books Section -->
         <div id="booksSection" class="hidden">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Manage Books</h3>
-            <div class="glass-panel" style="margin-bottom: 2rem; padding: 2rem;">
-                <h4 style="color: var(--primary); margin-bottom: 1.5rem;">Add New Book</h4>
+            <h3 class="font-serif text-3xl font-bold mb-6 text-text-main">Manage Books</h3>
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 mb-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <h4 class="text-primary font-serif text-xl mb-6 font-semibold">Add New Book</h4>
 
                 <!-- Smart Scanner Section -->
-                <div class="scanner-section"
-                    style="background: rgba(0, 229, 255, 0.05); border: 1px dashed var(--primary); padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem; display: flex; gap: 1.5rem; flex-wrap: wrap; align-items: flex-start;">
-                    <div style="flex: 1; min-width: 250px;">
-                        <label
-                            style="color: var(--primary); font-weight: 600; margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round">
-                                <path d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2z">
-                                </path>
+                <div class="bg-success/5 border border-dashed border-primary p-6 rounded-xl mb-8 flex gap-6 flex-wrap items-start">
+                    <div class="flex-1 min-w-[250px]">
+                        <label class="text-primary font-semibold mb-3 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2z"></path>
                                 <path d="M8 7v10"></path>
                                 <path d="M12 7v10"></path>
                                 <path d="M16 7v10"></path>
                             </svg>
                             Smart Barcode Scanner
                         </label>
-                        <div style="display: flex; gap: 1rem;">
-                            <div style="flex: 1; display: flex; position: relative;">
-                                <input type="text" id="scanIsbn" placeholder="Scan or type ISBN..."
-                                    style="width: 100%; background: var(--bg-dark); padding-right: 3rem;">
-                                <button type="button" onclick="startScanner('add')" title="Use Webcam Scanner"
-                                    style="position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-color);">📷</button>
+                        <div class="flex gap-4">
+                            <div class="flex-1 flex relative">
+                                <input type="text" id="scanIsbn" placeholder="Scan or type ISBN..." class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary pr-12">
+                                <button type="button" onclick="startScanner('add')" title="Use Webcam Scanner" class="absolute right-2 top-1/2 -translate-y-1/2 bg-transparent border-none text-xl cursor-pointer text-text-main opacity-70 hover:opacity-100 transition-opacity">📷</button>
                             </div>
-                            <button type="button" class="btn btn-primary" onclick="fetchBookDetails()"
-                                id="fetchBtn">Fetch</button>
+                            <button type="button" class="px-6 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg" onclick="fetchBookDetails()" id="fetchBtn">Fetch</button>
                         </div>
-                        <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.8rem; line-height: 1.4;">
-                            Scan an ISBN barcode to automatically fetch the book's title, author, category, and cover
-                            image from Google Books.</p>
+                        <p class="text-sm text-text-muted mt-3 leading-relaxed">
+                            Scan an ISBN barcode to automatically fetch the book's title, author, category, and cover image from Google Books.
+                        </p>
                     </div>
 
                     <!-- Cover Image Preview -->
-                    <div id="coverPreviewContainer"
-                        style="width: 100px; height: 140px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid var(--card-border); display: flex; justify-content: center; align-items: center; overflow: hidden; color: var(--text-muted); font-size: 0.8rem; text-align: center;">
+                    <div id="coverPreviewContainer" class="w-[100px] h-[140px] bg-black/30 rounded-lg border border-card-border flex justify-center items-center overflow-hidden text-text-muted text-xs text-center shrink-0">
                         <span id="coverPlaceholderText">No Cover</span>
-                        <img id="coverPreviewImg" src=""
-                            style="width: 100%; height: 100%; object-fit: contain; display: none;">
+                        <img id="coverPreviewImg" src="" class="w-full h-full object-contain hidden">
                     </div>
                 </div>
 
                 <form id="addBookForm">
-                    <div
-                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Title</label>
-                            <input type="text" id="bookTitle" required>
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-6">
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Title</label>
+                            <input type="text" id="bookTitle" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Author</label>
-                            <input type="text" id="bookAuthor" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Author</label>
+                            <input type="text" id="bookAuthor" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Category</label>
-                            <select id="bookCategory" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Category</label>
+                            <select id="bookCategory" required class="w-full px-4 py-3 bg-[#0f172a] border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary appearance-none cursor-pointer">
                                 <!-- Options loaded dynamically -->
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Stock</label>
-                            <input type="number" id="bookStock" min="1" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Stock</label>
+                            <input type="number" id="bookStock" min="1" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
-                            <label>Cover Image URL (Optional)</label>
-                            <input type="url" id="bookImageUrl" placeholder="https://example.com/cover.jpg"
-                                oninput="updateManualCover()">
+                        <div class="col-span-full">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Cover Image URL (Optional)</label>
+                            <input type="url" id="bookImageUrl" placeholder="https://example.com/cover.jpg" oninput="updateManualCover()" class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center;">
-                        <button type="submit" class="btn btn-primary">Add Book</button>
-                        <span style="color: var(--text-muted); font-size: 0.9rem;">or</span>
-                        <input type="file" id="csvFileInput" accept=".csv, .txt" style="display: none;"
-                            onchange="processCsvImport(event)">
-                        <button type="button" class="btn"
-                            style="background: transparent; border: 1px solid var(--secondary); color: var(--secondary);"
-                            onclick="document.getElementById('bulkImportModal').classList.remove('hidden')">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" style="margin-right: 0.5rem; vertical-align: middle;">
+                    <div class="flex gap-4 mt-6 items-center flex-wrap">
+                        <button type="submit" class="px-7 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Add Book</button>
+                        <span class="text-text-muted text-sm mx-2">or</span>
+                        <input type="file" id="csvFileInput" accept=".csv, .txt" class="hidden" onchange="processCsvImport(event)">
+                        <button type="button" class="px-7 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-secondary text-secondary hover:bg-white/5 flex items-center" onclick="document.getElementById('bulkImportModal').classList.remove('hidden')">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="17 8 12 3 7 8"></polyline>
                                 <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -183,22 +159,15 @@
                     </div>
                 </form>
             </div>
-
-            <div class="glass-panel" style="padding: 2rem;">
-                <div
-                    style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
-                    <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; flex: 1;">
-                        <h4 style="color: var(--primary); margin: 0; min-width: 150px;">Book Directory</h4>
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                    <div class="flex items-center gap-4 flex-wrap flex-1">
+                        <h4 class="text-primary font-serif text-xl m-0 min-w-[150px] font-semibold">Book Directory</h4>
 
                         <!-- Inline Search -->
-                        <div style="position: relative; flex: 1; min-width: 200px; max-width: 400px;">
-                            <input type="text" id="inlineSearchInput" placeholder="Quick find a book to modify..."
-                                oninput="debounceInlineSearch()"
-                                style="width: 100%; padding: 0.5rem 1rem 0.5rem 2.5rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main); font-size: 0.9rem;">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                style="position: absolute; left: 0.8rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); pointer-events: none;">
+                        <div class="relative flex-1 min-w-[200px] max-w-[400px]">
+                            <input type="text" id="inlineSearchInput" placeholder="Quick find a book to modify..." oninput="debounceInlineSearch()" class="w-full pl-10 pr-4 py-2.5 rounded-lg border border-card-border bg-black/20 text-text-main text-sm focus:outline-none focus:border-primary transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted pointer-events-none">
                                 <circle cx="11" cy="11" r="8"></circle>
                                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
@@ -206,31 +175,21 @@
                     </div>
 
                     <!-- Grid/List View Toggles -->
-                    <div style="display: flex; align-items: center; gap: 1rem;">
-                        <div id="bookCountBadge"
-                            style="background: var(--primary-glow); color: var(--primary); padding: 0.4rem 1rem; border-radius: 20px; font-weight: 600; font-size: 0.9rem; border: 1px solid rgba(0, 229, 255, 0.2);">
+                    <div class="flex items-center gap-4">
+                        <div id="bookCountBadge" class="bg-primary/10 text-primary px-4 py-1.5 rounded-full font-semibold text-sm border border-primary/20 shadow-[0_0_10px_rgba(212,175,55,0.1)]">
                             Loading...
                         </div>
-                        <div class="view-toggles"
-                            style="display: flex; gap: 0.5rem; background: rgba(0,0,0,0.1); padding: 0.3rem; border-radius: 8px;">
-                            <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active"
-                                title="Grid View"
-                                style="background: var(--card-bg); border: none; color: var(--primary); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
+                        <div class="flex gap-2 bg-black/10 p-1.5 rounded-lg">
+                            <button id="gridViewBtn" onclick="toggleViewMode('grid')" class="view-toggle-btn active [&.active]:bg-card-bg [&.active]:text-primary [&.active]:shadow-sm bg-transparent border-none text-text-muted p-2 rounded-md cursor-pointer transition-all duration-300 hover:text-text-main" title="Grid View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <rect x="3" y="3" width="7" height="7"></rect>
                                     <rect x="14" y="3" width="7" height="7"></rect>
                                     <rect x="14" y="14" width="7" height="7"></rect>
                                     <rect x="3" y="14" width="7" height="7"></rect>
                                 </svg>
                             </button>
-                            <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn"
-                                title="List View"
-                                style="background: transparent; border: none; color: var(--text-muted); padding: 0.5rem; border-radius: 6px; cursor: pointer; transition: var(--transition);">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round">
+                            <button id="listViewBtn" onclick="toggleViewMode('list')" class="view-toggle-btn [&.active]:bg-card-bg [&.active]:text-primary [&.active]:shadow-sm bg-transparent border-none text-text-muted p-2 rounded-md cursor-pointer transition-all duration-300 hover:text-text-main" title="List View">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="8" y1="6" x2="21" y2="6"></line>
                                     <line x1="8" y1="12" x2="21" y2="12"></line>
                                     <line x1="8" y1="18" x2="21" y2="18"></line>
@@ -241,10 +200,10 @@
                             </button>
                         </div>
                     </div>
-                </div> <!-- Close Header Flex Container -->
+                </div>
 
                 <!-- Interactive Book Grid -->
-                <div id="booksGrid" class="book-grid">
+                <div id="booksGrid" class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-6 [&.list-view]:block [&.list-view>div]:flex [&.list-view>div]:items-center [&.list-view>div]:text-left [&.list-view>div]:gap-4 [&.list-view>div]:mb-4 [&.list-view_img]:w-16 [&.list-view_img]:h-20 [&.list-view_img]:mb-0 [&.list-view_h4]:mb-1 [&.list-view_p]:mb-1">
                     <!-- Books injected here via JS -->
                 </div>
             </div>
@@ -252,27 +211,27 @@
 
         <!-- Manage Categories Section -->
         <div id="categoriesSection" class="hidden">
-            <h3 style="margin-bottom: 1.5rem; font-size: 1.8rem;">Manage Categories</h3>
-            <div class="glass-panel" style="margin-bottom: 2rem; padding: 2rem; max-width: 600px;">
-                <h4 style="color: var(--primary); margin-bottom: 1.5rem;">Add Category</h4>
-                <form id="addCategoryForm" style="display: flex; gap: 1rem; align-items: flex-end;">
-                    <div class="form-group" style="flex: 1; margin-bottom: 0;">
-                        <label>Category Name</label>
-                        <input type="text" id="categoryName" required>
+            <h3 class="font-serif text-3xl font-bold mb-6 text-text-main">Manage Categories</h3>
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 mb-8 max-w-[600px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <h4 class="text-primary font-serif text-xl mb-6 font-semibold">Add Category</h4>
+                <form id="addCategoryForm" class="flex gap-4 items-end">
+                    <div class="flex-1">
+                        <label class="block mb-2 text-text-muted text-sm font-medium">Category Name</label>
+                        <input type="text" id="categoryName" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
                     </div>
-                    <button type="submit" class="btn btn-primary">Add</button>
+                    <button type="submit" class="px-7 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Add</button>
                 </form>
             </div>
-            <div class="glass-panel" style="padding: 2rem; max-width: 600px;">
-                <div class="table-container">
-                    <table id="categoriesTable">
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 max-w-[600px] shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div class="w-full overflow-x-auto">
+                    <table id="categoriesTable" class="w-full border-collapse">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Actions</th>
+                            <tr class="border-b-2 border-border-color">
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Name</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-border-color">
                             <!-- Categories loaded here -->
                         </tbody>
                     </table>
@@ -282,31 +241,29 @@
 
         <!-- Manage Requests Section -->
         <div id="requestsSection" class="hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                <h3 style="margin-bottom: 0; font-size: 1.8rem;">Manage Requests</h3>
-                <div style="display: flex; gap: 1rem;">
-                    <input type="text" id="searchRequestInput" class="form-input" placeholder="Search requests..."
-                        style="width: 300px;" onkeyup="debounceRequestSearch()">
-                    <button class="btn btn-primary" onclick="startScanner('return')"
-                        style="display: flex; align-items: center; gap: 0.5rem; background: var(--primary);">
-                        <span style="font-size:1.2rem;">📷</span> Scan Return
+            <div class="flex justify-between items-center mb-6 flex-wrap gap-4">
+                <h3 class="font-serif text-3xl font-bold m-0 text-text-main">Manage Requests</h3>
+                <div class="flex gap-4 flex-wrap">
+                    <input type="text" id="searchRequestInput" class="w-[300px] px-4 py-2.5 bg-black/20 border border-card-border rounded-lg text-text-main focus:outline-none focus:border-primary" placeholder="Search requests..." onkeyup="debounceRequestSearch()">
+                    <button class="px-6 py-2.5 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg flex items-center gap-2" onclick="startScanner('return')">
+                        <span class="text-xl">📷</span> Scan Return
                     </button>
                 </div>
             </div>
-            <div class="glass-panel" style="padding: 2rem;">
-                <div class="table-container">
-                    <table id="requestsTable">
+            <div class="bg-card-bg border border-card-border rounded-xl p-8 shadow-[0_4px_20px_rgba(0,0,0,0.3)]">
+                <div class="w-full overflow-x-auto">
+                    <table id="requestsTable" class="w-full border-collapse">
                         <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Book</th>
-                                <th>Status</th>
-                                <th>Issue Date</th>
-                                <th>Due Date</th>
-                                <th>Actions</th>
+                            <tr class="border-b-2 border-border-color">
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">User</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Book</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Status</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Issue Date</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm">Due Date</th>
+                                <th class="py-4 px-4 text-left font-semibold text-text-muted uppercase tracking-[1px] text-sm text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="divide-y divide-border-color">
                             <!-- Requests loaded here -->
                         </tbody>
                     </table>
@@ -314,51 +271,51 @@
             </div>
         </div>
         <!-- ISBN Scanner Modal -->
-        <div id="scannerModal" class="modal hidden">
-            <div class="modal-content glass-panel" style="max-width: 500px;">
-                <div style="display: flex; justify-content: space-between; margin-bottom: 1rem; align-items: center;">
-                    <h3 style="color:var(--text-color);">Scan OR Enter ISBN</h3>
-                    <button class="btn btn-danger" onclick="stopScanner()">Close</button>
+        <div id="scannerModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+            <div class="bg-card-bg border border-card-border rounded-xl w-[90%] max-w-[500px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-8">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-text-main m-0 font-serif text-xl font-bold">Scan OR Enter ISBN</h3>
+                    <button class="px-4 py-2 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-danger text-white shadow-md hover:-translate-y-0.5" onclick="stopScanner()">Close</button>
                 </div>
-                <div id="reader" style="width: 100%; border-radius: 8px; overflow: hidden; background: #000;"></div>
-                <p style="text-align: center; margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">Hold the
-                    back of the physical book up to your camera.</p>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border); text-align: center;">
-                    <p style="margin-bottom: 0.5rem; color: var(--primary); font-size: 0.9rem;">Manual Entry Fallback:</p>
-                    <div style="display: flex; gap: 0.5rem; justify-content: center;">
-                        <input type="text" id="manualReturnIsbn" placeholder="Type ISBN precisely..." style="flex: 1; padding: 0.5rem; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text-main);">
-                        <button class="btn btn-primary" onclick="if(document.getElementById('manualReturnIsbn').value.trim()){ onScanSuccess(document.getElementById('manualReturnIsbn').value.trim()); document.getElementById('manualReturnIsbn').value=''; } else { alert('Please enter an ISBN.'); }">Submit</button>
+                <div id="reader" class="w-full rounded-lg overflow-hidden bg-black aspect-video"></div>
+                <p class="text-center mt-4 text-text-muted text-sm">Hold the back of the physical book up to your camera.</p>
+                
+                <div class="mt-4 pt-4 border-t border-card-border text-center">
+                    <p class="mb-2 text-primary text-sm font-semibold">Manual Entry Fallback:</p>
+                    <div class="flex gap-2 justify-center">
+                        <input type="text" id="manualReturnIsbn" placeholder="Type ISBN precisely..." class="flex-1 px-3 py-2 bg-black/20 border border-card-border rounded-lg text-text-main focus:outline-none focus:border-primary">
+                        <button class="px-4 py-2 rounded-lg font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-md hover:-translate-y-0.5" onclick="if(document.getElementById('manualReturnIsbn').value.trim()){ onScanSuccess(document.getElementById('manualReturnIsbn').value.trim()); document.getElementById('manualReturnIsbn').value=''; } else { alert('Please enter an ISBN.'); }">Submit</button>
                     </div>
                 </div>
-                <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid var(--card-border); text-align: center;">
-                    <p style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.85rem;">Or upload a barcode photo (Bypass Camera Error):</p>
-                    <input type="file" id="barcodeUpload" accept="image/*" style="width: 100%; padding: 0.5rem; background: var(--bg-dark); border: 1px solid var(--card-border); border-radius: 5px; color: var(--text-main);">
+                <div class="mt-4 pt-4 border-t border-card-border text-center">
+                    <p class="mb-2 text-text-muted text-sm border-">Or upload a barcode photo (Bypass Camera Error):</p>
+                    <input type="file" id="barcodeUpload" accept="image/*" class="w-full px-3 py-2 bg-black/20 border border-card-border rounded-lg text-text-main file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-bg-dark hover:file:bg-primary/90">
                 </div>
             </div>
         </div>
 
         <!-- Bulk Import Format Instructions Modal -->
-        <div id="bulkImportModal" class="modal hidden">
-            <div class="modal-content glass-panel" style="max-width: 500px; width: 90%; position: relative; padding: 2rem; border-radius: 20px;">
-                <button class="close-btn" onclick="document.getElementById('bulkImportModal').classList.add('hidden')" style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer;">&times;</button>
-                <h3 style="margin-bottom: 1rem; color: var(--primary);">Bulk Import Guidelines</h3>
-                <p style="color: var(--text-main); line-height: 1.5; margin-bottom: 1.5rem;">
-                    For the fastest and most reliable bulk upload, please provide a <b>.CSV</b> file that contains a single column of your books' 10 or 13-digit ISBNs.
+        <div id="bulkImportModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+            <div class="bg-card-bg border border-card-border rounded-[20px] w-[90%] max-w-[500px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-8 relative">
+                <button class="absolute right-6 top-6 bg-transparent border-none text-text-main text-3xl cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-300" onclick="document.getElementById('bulkImportModal').classList.add('hidden')">&times;</button>
+                <h3 class="mb-4 text-primary font-serif text-2xl font-bold">Bulk Import Guidelines</h3>
+                <p class="text-text-main leading-relaxed mb-6">
+                    For the fastest and most reliable bulk upload, please provide a <b class="font-bold text-primary">.CSV</b> file that contains a single column of your books' 10 or 13-digit ISBNs.
                 </p>
-                <div style="background: var(--bg-dark); padding: 1rem; border-radius: 8px; border: 1px dashed var(--card-border); margin-bottom: 1.5rem; text-align: center;">
-                    <p style="font-family: monospace; color: var(--text-muted); margin-bottom: 0.5rem;">Example structure:</p>
-                    <div style="font-family: monospace; color: var(--primary);">
+                <div class="bg-bg-dark p-4 rounded-lg border border-dashed border-card-border mb-6 text-center">
+                    <p class="font-mono text-text-muted mb-2 text-sm">Example structure:</p>
+                    <div class="font-mono text-primary bg-black/30 py-2 rounded inline-block px-8 text-left">
                         ISBN<br>
                         9780141182803<br>
                         9780061120084<br>
                         ...
                     </div>
                 </div>
-                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                    <button class="btn" style="flex: 1; background: transparent; border: 1px solid var(--secondary); color: var(--secondary);" onclick="downloadCsvTemplate()">
+                <div class="flex gap-4 flex-wrap">
+                    <button class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-secondary text-secondary hover:bg-white/5" onclick="downloadCsvTemplate()">
                         📥 Download Template
                     </button>
-                    <button class="btn btn-primary" style="flex: 1;" onclick="document.getElementById('bulkImportModal').classList.add('hidden'); document.getElementById('csvFileInput').click();">
+                    <button class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg" onclick="document.getElementById('bulkImportModal').classList.add('hidden'); document.getElementById('csvFileInput').click();">
                         Proceed to Upload
                     </button>
                 </div>
@@ -366,110 +323,101 @@
         </div>
 
         <!-- Bulk Import Progress Modal -->
-        <div id="progressModal" class="modal hidden">
-            <div class="modal-content glass-panel" style="max-width: 450px; width: 90%; text-align: center;">
-                <h3 style="color: var(--secondary); font-size: 1.5rem; margin-bottom: 1rem;">Importing Library...</h3>
-                <p id="progressModalMessage" style="color: var(--text-main); line-height: 1.6; margin-bottom: 1.5rem;">
+        <div id="progressModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+            <div class="bg-card-bg border border-card-border rounded-xl w-[90%] max-w-[450px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-8 text-center">
+                <h3 class="text-secondary text-2xl font-serif font-bold mb-4">Importing Library...</h3>
+                <p id="progressModalMessage" class="text-text-main leading-relaxed mb-6">
                     Initializing sequence...</p>
 
-                <div
-                    style="width: 100%; background: var(--bg-deep); border-radius: 8px; height: 12px; margin-bottom: 1rem; overflow: hidden; border: 1px solid var(--card-border);">
-                    <div id="progressBarFill"
-                        style="width: 0%; height: 100%; background: var(--secondary); transition: width 0.3s ease;">
+                <div class="w-full bg-bg-deep rounded-lg h-3 mb-4 overflow-hidden border border-card-border">
+                    <div id="progressBarFill" class="w-0 h-full bg-secondary transition-all duration-300 ease-out shadow-[0_0_10px_rgba(0,229,255,0.5)]">
                     </div>
                 </div>
 
-                <p id="progressModalCount" style="color: var(--text-muted); font-size: 0.9rem; font-family: monospace;">
+                <p id="progressModalCount" class="text-text-muted text-sm font-mono bg-black/20 inline-block px-3 py-1 rounded">
                     0 / 0</p>
             </div>
         </div>
 
         <!-- Edit Book Modal -->
-        <div id="editBookModal" class="modal hidden">
-            <div class="modal-content glass-panel"
-                style="max-width: 600px; width: 90%; position: relative; padding: 2rem;">
-                <button class="close-btn" onclick="closeEditModal()"
-                    style="position: absolute; right: 1.5rem; top: 1.5rem; background: none; border: none; color: var(--text-main); font-size: 2rem; cursor: pointer; transition: color 0.3s; z-index: 10;">&times;</button>
-                <h3 style="margin-bottom: 1.5rem; font-size: 1.5rem; color: var(--primary);">Modify Book</h3>
+        <div id="editBookModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+            <div class="bg-card-bg border border-card-border rounded-xl w-[90%] max-w-[600px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-8 relative">
+                <button class="absolute right-6 top-6 bg-transparent border-none text-text-main text-3xl cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-300 z-10" onclick="closeEditModal()">&times;</button>
+                <h3 class="mb-6 font-serif text-2xl font-bold text-primary">Modify Book</h3>
 
                 <form id="editBookForm">
                     <input type="hidden" id="editBookId">
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Title</label>
-                            <input type="text" id="editBookTitle" required>
+                    <div class="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Title</label>
+                            <input type="text" id="editBookTitle" required class="w-full px-4 py-2 border border-card-border bg-black/20 text-text-main rounded-lg focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Author</label>
-                            <input type="text" id="editBookAuthor" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Author</label>
+                            <input type="text" id="editBookAuthor" required class="w-full px-4 py-2 border border-card-border bg-black/20 text-text-main rounded-lg focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Category</label>
-                            <select id="editBookCategory" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Category</label>
+                            <select id="editBookCategory" required class="w-full px-4 py-2 border border-card-border bg-[#0f172a] text-text-main rounded-lg focus:outline-none focus:border-primary appearance-none cursor-pointer">
                                 <!-- Options loaded dynamically -->
                             </select>
                         </div>
-                        <div class="form-group" style="margin-bottom: 0;">
-                            <label>Stock</label>
-                            <input type="number" id="editBookStock" min="0" required>
+                        <div>
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Stock</label>
+                            <input type="number" id="editBookStock" min="0" required class="w-full px-4 py-2 border border-card-border bg-black/20 text-text-main rounded-lg focus:outline-none focus:border-primary">
                         </div>
-                        <div class="form-group" style="margin-bottom: 0; grid-column: 1 / -1;">
-                            <label>Cover Image URL (Optional)</label>
-                            <input type="url" id="editBookImageUrl" placeholder="https://example.com/cover.jpg">
+                        <div class="col-span-full">
+                            <label class="block mb-2 text-text-muted text-sm font-medium">Cover Image URL (Optional)</label>
+                            <input type="url" id="editBookImageUrl" placeholder="https://example.com/cover.jpg" class="w-full px-4 py-2 border border-card-border bg-black/20 text-text-main rounded-lg focus:outline-none focus:border-primary">
                         </div>
                     </div>
-                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-                        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
-                        <button type="button" class="btn"
-                            style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);"
-                            onclick="closeEditModal()">Cancel</button>
-                    </div>
+                    <div class="flex gap-4 mt-6">
+                        <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Save Changes</button>
+                        <button type="button" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-text-muted text-text-main hover:bg-white/5" onclick="closeEditModal()">Cancel</button>
+                     </div>
                 </form>
             </div>
         </div>
     </div>
 
     <!-- Universal Custom Modal -->
-    <div id="customModal" class="modal hidden">
-        <div class="modal-content glass-panel"
-            style="max-width: 450px; width: 90%; position: relative; padding: 2.5rem; text-align: center; border-radius: 20px;">
-            <h3 id="customModalTitle" style="margin-bottom: 1rem; font-size: 1.6rem; color: var(--primary);">
+    <div id="customModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+        <div class="bg-card-bg border border-card-border rounded-[20px] w-[90%] max-w-[450px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-10 text-center relative">
+            <h3 id="customModalTitle" class="mb-4 font-serif text-2xl font-bold text-primary">
                 Notification</h3>
-            <p id="customModalMessage"
-                style="margin-bottom: 1.5rem; color: var(--text-main); font-size: 1.1rem; line-height: 1.5;"></p>
+            <p id="customModalMessage" class="mb-6 text-text-main text-[1.1rem] leading-relaxed"></p>
 
-            <div id="customModalInputContainer" class="hidden" style="margin-bottom: 2rem;">
-                <input type="number" id="customModalInput"
-                    style="width: 100%; text-align: center; font-size: 1.1rem; padding: 0.8rem; border-radius: 8px; border: 1px solid var(--card-border); background: var(--bg-dark); color: var(--text-main);">
+            <div id="customModalInputContainer" class="hidden mb-8">
+                <input type="number" id="customModalInput" class="w-full text-center text-[1.1rem] px-4 py-3 border border-card-border rounded-lg bg-black/20 text-text-main focus:outline-none focus:border-primary">
             </div>
 
-            <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 1rem;">
-                <button id="customModalCancelBtn" class="btn hidden"
-                    style="background: transparent; border: 1px solid var(--text-muted); color: var(--text-main); flex: 1;">Cancel</button>
-                <button id="customModalConfirmBtn" class="btn btn-primary" style="flex: 1;">OK</button>
+            <div class="flex gap-4 justify-center mt-4">
+                <button id="customModalCancelBtn" class="hidden flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-text-muted text-text-main hover:bg-white/5">Cancel</button>
+                <button id="customModalConfirmBtn" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">OK</button>
             </div>
         </div>
     </div>
+    
     <!-- General Tenant Configuration Modal -->
-    <div id="configModal" class="modal hidden">
-        <div class="modal-content glass-panel" style="max-width: 400px; width: 90%; position: relative; border-radius: 20px;">
-            <button class="close-btn" onclick="document.getElementById('configModal').classList.add('hidden')">&times;</button>
-            <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; text-align: center;" class="gradient-text">Institution Settings</h2>
-            <p style="text-align: center; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 2rem;">Adjust fine calculations natively for your branch.</p>
+    <div id="configModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[1000] hidden items-center justify-center p-4 [&:not(.hidden)]:flex">
+        <div class="bg-card-bg border border-card-border rounded-[20px] w-[90%] max-w-[400px] shadow-[0_10px_40px_rgba(0,0,0,0.5)] p-8 relative">
+            <button class="absolute right-6 top-6 bg-transparent border-none text-text-main text-3xl cursor-pointer hover:text-primary transition-colors hover:rotate-90 duration-300" onclick="document.getElementById('configModal').classList.add('hidden')">&times;</button>
+            <h2 class="text-3xl font-serif font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-primary to-[#f5e6a3]">Institution Settings</h2>
+            <p class="text-center text-text-muted text-sm mb-8">Adjust fine calculations natively for your branch.</p>
             
             <form id="configForm">
-                <div class="form-group">
-                    <label>Currency Symbol Label</label>
-                    <input type="text" id="configCurrency" placeholder="e.g. ₹ or $" required>
+                <div class="mb-5">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Currency Symbol Label</label>
+                    <input type="text" id="configCurrency" placeholder="e.g. ₹ or $" required class="w-full px-4 py-3 border border-card-border bg-black/20 text-text-main rounded-xl focus:outline-none focus:border-primary">
                 </div>
-                <div class="form-group" style="margin-bottom: 2.5rem;">
-                    <label>Overdue Fine Escalation (Per Day)</label>
-                    <input type="number" id="configFinePerDay" placeholder="10" required>
+                <div class="mb-10">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Overdue Fine Escalation (Per Day)</label>
+                    <input type="number" id="configFinePerDay" placeholder="10" required class="w-full px-4 py-3 border border-card-border bg-black/20 text-text-main rounded-xl focus:outline-none focus:border-primary">
                 </div>
                 
-                <div style="display: flex; gap: 1rem;">
-                    <button type="submit" class="btn btn-primary" style="flex: 1;">Save Configuration</button>
-                    <button type="button" class="btn" style="flex: 1; background: transparent; border: 1px solid var(--text-muted); color: var(--text-main);" onclick="document.getElementById('configModal').classList.add('hidden')">Cancel</button>
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_15px_rgba(212,175,55,0.3)] hover:-translate-y-0.5 hover:shadow-lg">Save Configuration</button>
+                    <button type="button" class="flex-1 px-4 py-3 rounded-xl font-semibold uppercase tracking-[1px] transition-all duration-300 bg-transparent border border-text-muted text-text-main hover:bg-white/5" onclick="document.getElementById('configModal').classList.add('hidden')">Cancel</button>
                 </div>
             </form>
         </div>
@@ -488,7 +436,7 @@
             if (typeof originalShowSection === 'function') {
                 window.showSection = function (sectionId) {
                     originalShowSection(sectionId);
-                    document.querySelectorAll('.tab-container .btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelectorAll('.tab-container button').forEach(btn => btn.classList.remove('active'));
                     const activeBtn = document.getElementById('btn-' + sectionId);
                     if (activeBtn) activeBtn.classList.add('active');
                 };

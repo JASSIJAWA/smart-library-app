@@ -5,191 +5,200 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Smart Library System</title>
+    <!-- Compiled Tailwind CSS replaces custom style.css -->
     <link rel="stylesheet" href="css/style.css">
     <script src="js/theme.js"></script>
+    <!-- Preconnect to fonts for Tailwind config -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 </head>
 
-<body style="justify-content: center; align-items: center;">
+<body class="min-h-screen flex flex-col overflow-x-hidden text-text-main bg-bg-dark justify-center items-center font-sans">
     <!-- Animated Background Orbs -->
-    <div class="bg-orbs">
+    <div class="hidden">
+        <!-- Kept logic hooks intact but styled out via tailwind if we removed custom CSS -->
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
 
     <!-- Theme Toggle -->
-    <div style="position: absolute; top: 1.5rem; right: 2rem; z-index: 100;">
-        <button id="themeToggleBtn" onclick="toggleTheme()" class="theme-btn" title="Toggle Light/Dark Theme"></button>
+    <div class="absolute top-4 right-4 sm:top-6 sm:right-8 z-[100]">
+        <button id="themeToggleBtn" onclick="toggleTheme()" class="bg-card-bg sm:bg-transparent border border-card-border sm:border-none shadow-md sm:shadow-none text-text-main cursor-pointer flex items-center justify-center p-2.5 sm:p-2 rounded-full transition-all duration-300 hover:bg-white/10 hover:rotate-12" title="Toggle Light/Dark Theme"></button>
     </div>
 
-    <div class="container" style="width: 100%; max-width: 420px; position: relative; z-index: 10; margin: 2rem;">
-        <div style="text-align: center; margin-bottom: 2rem; display: flex; flex-direction: column; align-items: center;">
-            <img id="publicBrandLogo" src="" style="display: none; height: 60px; margin-bottom: 1rem; object-fit: contain;">
-            <h1 id="publicBrandName" class="gradient-text navbar-brand-text" style="font-size: 2.5rem; margin-bottom: 0.2rem;">Smart Library</h1>
-            <p style="color: var(--text-muted); font-size: 0.9rem; letter-spacing: 1.5px; text-transform: uppercase;">
+    <div class="w-full max-w-[420px] relative z-10 m-4 sm:m-8">
+        <div class="text-center mb-8 flex flex-col items-center">
+            <img id="publicBrandLogo" src="" class="hidden h-[50px] sm:h-[60px] mb-4 object-contain">
+            <h1 id="publicBrandName" class="font-serif font-bold text-3xl sm:text-4xl mb-1 text-primary tracking-tight px-2">Smart Library</h1>
+            <p class="text-text-muted text-xs sm:text-sm tracking-[1.5px] uppercase">
                 Premium Book Management</p>
         </div>
 
-        <!-- Login Form -->
-        <form id="loginForm">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem;">Welcome Back</h2>
-            <div class="form-group">
-                <label>Institution Code (Local Testing)</label>
-                <input type="text" id="loginSubdomain" placeholder="e.g. iilm (leave blank for default)">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="loginEmail" placeholder="Enter your email" required>
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <div class="password-container">
-                    <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('loginPassword', this)">
-                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
-                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
-                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
-                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
-                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
-                        </svg>
-                    </button>
+        <div class="bg-card-bg border border-card-border rounded-xl p-6 sm:p-10 shadow-[0_4px_20px_rgba(0,0,0,0.3)] w-full">
+            <!-- Login Form -->
+            <form id="loginForm">
+                <h2 class="font-serif font-bold text-center text-2xl mb-6">Welcome Back</h2>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium transition-all duration-300">Institution Code (Local Testing)</label>
+                    <input type="text" id="loginSubdomain" placeholder="e.g. iilm (leave blank for default)" class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:bg-black/40 focus:border-primary focus:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
                 </div>
-            </div>
-            <div style="text-align: right; margin-top: -0.5rem; margin-bottom: 1rem;">
-                <a href="#" id="showForgotPassword" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;">Forgot Password?</a>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem;">Login to Account</button>
-            <button type="button" id="showOtpLogin" class="btn" style="width: 100%; margin-top: 0.5rem; background: #334155; color: white;">✨ Login via Email Code</button>
-            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
-                New to Smart Library? <a href="#" id="showRegister" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s; padding-left: 0.3rem;">Register Now</a>
-            </p>
-        </form>
-
-
-        <!-- Register Form (Hidden) -->
-        <form id="registerForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 1.5rem;">Create Account</h2>
-            <div class="form-group">
-                <label>Institution Code (Local Testing)</label>
-                <input type="text" id="regSubdomain" placeholder="e.g. iilm (leave blank for default)">
-            </div>
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" id="regName" placeholder="John Doe" required>
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="regEmail" placeholder="john@example.com" required>
-            </div>
-            <input type="hidden" id="regRole" value="Member">
-            <div class="form-group">
-                <label>Password</label>
-                <div class="password-container">
-                    <input type="password" id="regPassword" placeholder="Create a strong password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('regPassword', this)">
-                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
-                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
-                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
-                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
-                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
-                        </svg>
-                    </button>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium transition-all duration-300">Email Address</label>
+                    <input type="email" id="loginEmail" placeholder="Enter your email" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:bg-black/40 focus:border-primary focus:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
                 </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Sign Up</button>
-            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
-                Already have an account? <a href="#" id="showLogin"
-                    style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s; padding-left: 0.3rem;">Login Here</a>
-            </p>
-        </form>
-
-        <!-- Register OTP Verify Form (Hidden) -->
-        <form id="registerVerifyForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #00cc99">Verify Email</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">We sent a 6-digit code to your inbox.</p>
-            <div class="form-group">
-                <label>Security Pin (OTP)</label>
-                <input type="text" id="regVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Verify & Create Account</button>
-        </form>
-
-        <!-- Login OTP Request Form (Hidden) -->
-        <form id="loginOtpRequestForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem;">Passwordless Login</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Enter your email to receive a secure login link.</p>
-            <div class="form-group">
-                <label>Institution Code (Local Testing)</label>
-                <input type="text" id="otpSubdomain" placeholder="e.g. iilm (leave blank for default)">
-            </div>
-            <div class="form-group">
-                <label>Email Address</label>
-                <input type="email" id="otpRequestEmail" placeholder="Enter your email" required>
-            </div>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 1rem; background: #00cc99; color: white;">Send Security Code</button>
-            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
-                <a href="#" id="showLoginFromOtpReq" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s;">Back to Password Login</a>
-            </p>
-        </form>
-
-        <!-- Login OTP Verify Form (Hidden) -->
-        <form id="loginOtpVerifyForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #00cc99">Verify Login</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Check your inbox for the login code.</p>
-            <div class="form-group">
-                <label>Security Pin (OTP)</label>
-                <input type="text" id="loginVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Authenticate</button>
-        </form>
-
-        <!-- Forgot Password Request Form (Hidden) -->
-        <form id="forgotPasswordRequestForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;">Account Recovery</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Enter your email to reset your password.</p>
-            <div class="form-group">
-                <label>Institution Code (Local Testing)</label>
-                <input type="text" id="forgotSubdomain" placeholder="e.g. iilm (leave blank for default)">
-            </div>
-            <div class="form-group">
-                <label>Registered Email Address</label>
-                <input type="email" id="forgotRequestEmail" placeholder="Enter your email" required>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: #f59e0b; border-color: #f59e0b; color: white;">Send Recovery Code</button>
-            <p style="text-align: center; margin-top: 1.5rem; color: var(--text-muted); font-size: 0.95rem;">
-                <a href="#" id="showLoginFromForgot" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s;">Back to Login</a>
-            </p>
-        </form>
-
-        <!-- Forgot Password Verify & Reset Form (Hidden) -->
-        <form id="forgotPasswordVerifyForm" class="hidden">
-            <h2 style="text-align: center; font-size: 1.5rem; margin-bottom: 0.5rem; color: #f59e0b;">Reset Password</h2>
-            <p style="text-align: center; margin-bottom: 1.5rem; color: var(--text-muted); font-size: 0.9rem;">Enter the security pin and your new password.</p>
-            <div class="form-group">
-                <label>Security Pin (OTP)</label>
-                <input type="text" id="forgotVerifyOtp" placeholder="------" style="text-align: center; font-size: 1.5rem; letter-spacing: 10px;" required>
-            </div>
-            <div class="form-group">
-                <label>New Password</label>
-                <div class="password-container">
-                    <input type="password" id="forgotNewPassword" placeholder="Create new password" required>
-                    <button type="button" class="password-toggle" onclick="togglePassword('forgotNewPassword', this)">
-                        <svg class="smooth-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
-                            <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
-                            <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
-                            <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
-                            <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
-                        </svg>
-                    </button>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium transition-all duration-300">Password</label>
+                    <div class="relative flex items-center password-container pl-0">
+                        <input type="password" id="loginPassword" placeholder="Enter your password" required class="w-full px-4 py-3 pr-11 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:bg-black/40 focus:border-primary focus:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-0 flex justify-center items-center transition-all duration-300 hover:text-primary hover:scale-110" onclick="togglePassword('loginPassword', this)">
+                            <svg class="smooth-eye w-[22px] h-[22px] inline-block transition-all duration-400 stroke-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                                <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                                <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                                <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                                <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                            </svg>
+                        </button>
+                    </div>
                 </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; background: #f59e0b; border-color: #f59e0b; color: white;">Finalize Reset</button>
-        </form>
+                <div class="text-right -mt-2 mb-4">
+                    <a href="#" id="showForgotPassword" class="text-primary text-sm no-underline hover:brightness-125 transition-all">Forgot Password?</a>
+                </div>
+                <button type="submit" class="w-full mt-2 px-7 py-3 rounded-lg font-semibold text-sm uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-[0_4px_10px_var(--color-primary-glow)] hover:-translate-y-0.5 hover:shadow-[0_6px_15px_var(--color-primary-glow)] active:translate-y-0">Login to Account</button>
+                <button type="button" id="showOtpLogin" class="w-full mt-3 px-7 py-3 rounded-lg font-semibold text-sm uppercase tracking-[1px] transition-all duration-300 bg-slate-700 text-white shadow-md hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0">✨ Login via Email Code</button>
+                <p class="text-center mt-6 text-text-muted text-[0.95rem]">
+                    New to Smart Library? <a href="#" id="showRegister" class="text-primary font-semibold no-underline transition-all duration-300 pl-1 hover:brightness-125">Register Now</a>
+                </p>
+            </form>
+
+            <!-- Register Form (Hidden) -->
+            <form id="registerForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-6">Create Account</h2>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Institution Code (Local Testing)</label>
+                    <input type="text" id="regSubdomain" placeholder="e.g. iilm (leave blank for default)" class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:border-primary">
+                </div>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Full Name</label>
+                    <input type="text" id="regName" placeholder="John Doe" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:border-primary">
+                </div>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Email Address</label>
+                    <input type="email" id="regEmail" placeholder="john@example.com" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:border-primary">
+                </div>
+                <input type="hidden" id="regRole" value="Member">
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Password</label>
+                    <div class="relative flex items-center password-container pl-0">
+                        <input type="password" id="regPassword" placeholder="Create a strong password" required class="w-full px-4 py-3 pr-11 bg-black/20 border border-card-border rounded-xl text-text-main text-base transition-all duration-300 hover:border-primary focus:outline-none focus:border-primary">
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-0 flex justify-center items-center transition-all duration-300 hover:text-primary hover:scale-110" onclick="togglePassword('regPassword', this)">
+                            <svg class="smooth-eye w-[22px] h-[22px] inline-block transition-all duration-400 stroke-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                                <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                                <path class="lash lash-1" d="M 12 16.5 L 12 20.5"></path>
+                                <path class="lash lash-2" d="M 7.5 15.5 L 4.5 18.5"></path>
+                                <path class="lash lash-3" d="M 16.5 15.5 L 19.5 18.5"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase tracking-[1px] transition-all duration-300 bg-primary text-bg-dark shadow-md hover:-translate-y-0.5">Sign Up</button>
+                <p class="text-center mt-6 text-text-muted text-[0.95rem]">
+                    Already have an account? <a href="#" id="showLogin" class="text-primary font-semibold no-underline transition-all duration-300 pl-1 hover:brightness-125">Login Here</a>
+                </p>
+            </form>
+
+            <!-- Register OTP Verify Form (Hidden) -->
+            <form id="registerVerifyForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-2 text-[#00cc99]">Verify Email</h2>
+                <p class="text-center mb-6 text-text-muted text-sm">We sent a 6-digit code to your inbox.</p>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Security Pin (OTP)</label>
+                    <input type="text" id="regVerifyOtp" placeholder="------" required class="w-full px-4 py-4 text-center font-mono text-2xl tracking-[10px] bg-black/20 border border-card-border rounded-xl text-text-main transition-all focus:outline-none focus:border-[#00cc99]">
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase transition-all duration-300 bg-[#00cc99] text-white shadow-md hover:-translate-y-0.5">Verify & Create Account</button>
+            </form>
+
+            <!-- Login OTP Request Form (Hidden) -->
+            <form id="loginOtpRequestForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-2">Passwordless Login</h2>
+                <p class="text-center mb-6 text-text-muted text-sm">Enter your email to receive a secure login link.</p>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Institution Code (Local Testing)</label>
+                    <input type="text" id="otpSubdomain" placeholder="e.g. iilm (leave blank for default)" class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
+                </div>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Email Address</label>
+                    <input type="email" id="otpRequestEmail" placeholder="Enter your email" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-primary">
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase transition-all duration-300 bg-[#00cc99] text-white hover:-translate-y-0.5">Send Security Code</button>
+                <p class="text-center mt-6 text-text-muted text-[0.95rem]">
+                    <a href="#" id="showLoginFromOtpReq" class="text-primary font-semibold no-underline transition-all hover:brightness-125">Back to Password Login</a>
+                </p>
+            </form>
+
+            <!-- Login OTP Verify Form (Hidden) -->
+            <form id="loginOtpVerifyForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-2 text-[#00cc99]">Verify Login</h2>
+                <p class="text-center mb-6 text-text-muted text-sm">Check your inbox for the login code.</p>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Security Pin (OTP)</label>
+                    <input type="text" id="loginVerifyOtp" placeholder="------" required class="w-full px-4 py-4 text-center font-mono text-2xl tracking-[10px] bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-[#00cc99]">
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase transition-all duration-300 bg-primary text-bg-dark shadow hover:-translate-y-0.5">Authenticate</button>
+            </form>
+
+            <!-- Forgot Password Request Form (Hidden) -->
+            <form id="forgotPasswordRequestForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-2 text-warning">Account Recovery</h2>
+                <p class="text-center mb-6 text-text-muted text-sm">Enter your email to reset your password.</p>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Institution Code (Local Testing)</label>
+                    <input type="text" id="forgotSubdomain" placeholder="e.g. iilm (leave blank for default)" class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
+                </div>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Registered Email Address</label>
+                    <input type="email" id="forgotRequestEmail" placeholder="Enter your email" required class="w-full px-4 py-3 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase transition-all duration-300 bg-warning text-white hover:-translate-y-0.5">Send Recovery Code</button>
+                <p class="text-center mt-6 text-text-muted text-[0.95rem]">
+                    <a href="#" id="showLoginFromForgot" class="text-primary font-semibold no-underline transition-all hover:brightness-125">Back to Login</a>
+                </p>
+            </form>
+
+            <!-- Forgot Password Verify & Reset Form (Hidden) -->
+            <form id="forgotPasswordVerifyForm" class="hidden">
+                <h2 class="font-serif font-bold text-center text-2xl mb-2 text-warning">Reset Password</h2>
+                <p class="text-center mb-6 text-text-muted text-sm">Enter the security pin and your new password.</p>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">Security Pin (OTP)</label>
+                    <input type="text" id="forgotVerifyOtp" placeholder="------" required class="w-full px-4 py-4 text-center font-mono text-2xl tracking-[10px] bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
+                </div>
+                <div class="relative mb-6">
+                    <label class="block mb-2 text-text-muted text-sm font-medium">New Password</label>
+                    <div class="relative flex items-center password-container pl-0">
+                        <input type="password" id="forgotNewPassword" placeholder="Create new password" required class="w-full px-4 py-3 pr-11 bg-black/20 border border-card-border rounded-xl text-text-main focus:outline-none focus:border-warning">
+                        <button type="button" class="password-toggle absolute right-3 top-1/2 -translate-y-1/2 bg-transparent border-none text-text-muted cursor-pointer p-0 flex justify-center items-center transition-all duration-300 hover:text-warning hover:scale-110" onclick="togglePassword('forgotNewPassword', this)">
+                            <svg class="smooth-eye w-[22px] h-[22px] inline-block transition-all duration-400 stroke-text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path class="eye-shape" d="M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z"></path>
+                                <circle cx="12" cy="12" r="3" fill="currentColor" class="eye-pupil" stroke="none"></circle>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="w-full mt-4 px-7 py-3 rounded-lg font-semibold text-sm uppercase transition-all duration-300 bg-warning text-white hover:-translate-y-0.5">Finalize Reset</button>
+            </form>
+        </div>
     </div>
+
+    <!-- Super Admin Doorway -->
+    <a href="login-superadmin.html" class="fixed bottom-6 right-6 p-3 bg-black/40 backdrop-blur-md border border-card-border rounded-full text-text-muted hover:text-primary hover:border-primary transition-all duration-300 hover:scale-110 shadow-lg z-50 group" title="Super Admin Vault">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="group-hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+    </a>
 
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
@@ -198,10 +207,10 @@
             const input = document.getElementById(inputId);
             if (input.type === 'password') {
                 input.type = 'text';
-                button.classList.add('is-open'); // Eyelid opens
+                button.classList.add('is-open'); 
             } else {
                 input.type = 'password';
-                button.classList.remove('is-open'); // Eyelid closes
+                button.classList.remove('is-open');
             }
         }
     </script>

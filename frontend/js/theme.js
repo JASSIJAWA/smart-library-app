@@ -25,12 +25,12 @@ async function initTenantBranding() {
             // 1. Inject Custom Brand Color into CSS Variables
             if (tenant.brandingColors && tenant.brandingColors.primary) {
                 const hex = tenant.brandingColors.primary;
-                document.documentElement.style.setProperty('--primary', hex);
+                document.documentElement.style.setProperty('--app-primary', hex);
 
                 // Construct a glow color (rgba with 0.2 opacity) based on the hex
                 // Since hex to rgba natively in CSS is tricky, we'll just use a subtle generic glow 
                 // or if it's a standard hex (#RRGGBB), we could parse it, but for safety:
-                document.documentElement.style.setProperty('--primary-glow', `${hex}33`); // Append 33 for ~20% opacity
+                document.documentElement.style.setProperty('--app-primary-glow', `${hex}33`); // Append 33 for ~20% opacity
             }
 
             // 2. Inject Custom Institution Name into Navbar and Titles

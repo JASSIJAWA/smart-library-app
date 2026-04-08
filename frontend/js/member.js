@@ -115,7 +115,7 @@ function debounceSearch() {
 async function loadBooks(searchQuery = '', silent = false) {
     const booksGrid = document.getElementById('booksGrid');
     if (!silent) {
-        booksGrid.innerHTML = '<p style="color: var(--primary);">Loading books...</p>';
+        booksGrid.innerHTML = '<p class="col-span-full text-center text-primary py-8">Loading books...</p>';
     }
 
     try {
@@ -124,7 +124,12 @@ async function loadBooks(searchQuery = '', silent = false) {
             : `${API_URL}/books`;
 
         const res = await fetch(url, { headers: getHeaders() });
-        const books = await res.json();
+        let books = await res.json();
+
+        if (!Array.isArray(books)) {
+            console.error('API Error: Expected array of books, got:', books);
+            books = [];
+        }
 
         booksGrid.innerHTML = '';
 
@@ -135,41 +140,41 @@ async function loadBooks(searchQuery = '', silent = false) {
         }
 
         if (books.length === 0) {
-            booksGrid.innerHTML = '<p style="color: var(--text-muted); grid-column: 1/-1; text-align: center;">No books found matching your search.</p>';
+            booksGrid.innerHTML = '<p class="col-span-full text-center text-text-muted py-8">No books found matching your search.</p>';
             return;
         }
         books.forEach(book => {
             const card = document.createElement('div');
-            card.className = 'book-card';
+            card.className = 'bg-card-bg border border-card-border rounded-xl p-4 flex flex-col items-center transition-all duration-300 shadow-md hover:-translate-y-1 hover:border-primary relative duration-300';
             // Render beautiful fallback if no image
             const imageHtml = book.imageUrl
-                ? `<img src="${book.imageUrl}" alt="${book.title} cover" class="book-cover">`
-                : `<div class="book-cover placeholder-cover">
-                     <span style="font-size: 2rem; opacity: 0.5;">📚</span>
-                     <span style="font-size: 0.8rem; margin-top: 0.5rem; text-align: center; padding: 0 1rem; color: var(--text-muted);">${book.title}</span>
+                ? `<img src="${book.imageUrl}" alt="${book.title} cover" class="w-full h-48 object-cover rounded-lg mb-4 shadow-sm list-view_img">`
+                : `<div class="w-full h-48 rounded-lg mb-4 shadow-sm bg-bg-dark border border-card-border flex flex-col items-center justify-center py-4 list-view_img">
+                     <span class="text-4xl opacity-50">📚</span>
+                     <span class="text-xs mt-2 text-center px-4 text-text-muted truncate w-full">${book.title}</span>
                    </div>`;
 
             card.innerHTML = `
                 ${imageHtml}
-                <div class="book-info-wrapper">
-                    <h4>${book.title}</h4>
-                    <p class="author">by ${book.author}</p>
-                    <div><span class="category-badge">${book.category}</span></div>
-                    <p style="margin-bottom: 0.5rem; color: var(--text-muted); font-size: 0.9rem;">
-                        Stock: ${book.stock > 0 ? `<span style="color:var(--success); font-weight:600;">${book.stock} Available</span>` : '<span style="color:var(--danger); font-weight:600;">Out of Stock</span>'}
+                <div class="flex flex-col flex-1 w-full text-center w-full min-w-0">
+                    <h4 class="text-text-main text-lg font-serif font-bold mb-1 w-full truncate list-view_h4" title="${book.title}">${book.title}</h4>
+                    <p class="text-text-muted text-sm mb-2 w-full truncate list-view_p">by ${book.author}</p>
+                    <div class="mb-3"><span class="bg-primary/10 text-primary text-xs font-semibold px-2 py-1 rounded-full">${book.category}</span></div>
+                    <p class="text-sm mb-2 w-full">
+                        Stock: ${book.stock > 0 ? `<span class="text-success font-semibold px-1">${book.stock} Available</span>` : '<span class="text-danger font-semibold px-1">Out of Stock</span>'}
                     </p>
                     ${book.stock <= 0 && book.expectedReturn ? `
-                    <div style="margin-bottom: 1.5rem; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); border-radius: 8px; padding: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="font-size: 1.2rem;">⏳</span>
-                        <div>
-                            <span style="display: block; font-size: 0.75rem; color: var(--warning); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Expected Return</span>
-                            <span style="color: var(--text-color); font-size: 0.9rem; font-weight: 500;">${new Date(book.expectedReturn).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+                    <div class="mb-6 bg-warning/10 border border-warning/30 rounded-lg p-2 flex items-center gap-2 mt-auto w-full">
+                        <span class="text-xl">⏳</span>
+                        <div class="text-left leading-tight w-full truncate">
+                            <span class="block text-[0.75rem] text-warning font-semibold uppercase tracking-[0.5px]">Expected Return</span>
+                            <span class="text-text-main text-sm font-medium w-full truncate">${new Date(book.expectedReturn).toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' })}</span>
                         </div>
                     </div>
-                    ` : '<div style="margin-bottom: 1.5rem;"></div>'}
-                    <button class="btn btn-primary btn-request"
+                    ` : '<div class="mb-6 mt-auto"></div>'}
+                    <button class="w-full mt-auto bg-primary text-bg-dark font-semibold py-2.5 rounded-lg text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity uppercase tracking-[0.5px] shadow-sm hover:shadow-md"
                         onclick="requestBook('${book._id}')">
-                        ${book.stock === 0 ? 'Join Waitlist <span style="font-size: 1.2rem; line-height: 1;">⏳</span>' : 'Request Book <span style="font-size: 1.2rem; line-height: 1;">→</span>'}
+                        ${book.stock === 0 ? 'Waitlist <span class="text-lg leading-none">⏳</span>' : 'Request <span class="text-lg leading-none">→</span>'}
                     </button>
                 </div>
             `;
@@ -181,7 +186,7 @@ async function loadBooks(searchQuery = '', silent = false) {
 
     } catch (err) {
         console.error('Error fetching books:', err);
-        booksGrid.innerHTML = '<p>Error loading books.</p>';
+        booksGrid.innerHTML = '<p class="col-span-full text-center text-danger py-8">Error loading books.</p>';
     }
 }
 
@@ -220,37 +225,52 @@ async function requestBook(bookId) {
 async function loadMyRequests(silent = false) {
     const tableBody = document.querySelector('#requestsTable tbody');
     if (!silent) {
-        tableBody.innerHTML = '<tr><td colspan="8">Loading...</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-text-muted">Loading...</td></tr>';
     }
 
     try {
         const res = await fetch(`${API_URL}/requests`, {
             headers: getHeaders()
         });
-        const requests = await res.json();
+        let requests = await res.json();
+
+        if (!Array.isArray(requests)) {
+            console.error('API Error: Expected array of requests, got:', requests);
+            requests = [];
+        }
 
         requestsLoaded = true;
 
         tableBody.innerHTML = '';
         requests.forEach(req => {
+            // Assign status col color
+            let statusColor = "text-text-muted";
+            if (req.status === 'Requested') statusColor = "text-secondary";
+            if (req.status === 'Approved') statusColor = "text-success";
+            if (req.status === 'Issued') statusColor = "text-primary";
+            if (req.status === 'Rejected') statusColor = "text-danger";
+            if (req.status === 'Returned') statusColor = "text-text-muted";
+            if (req.status === 'Overdue') statusColor = "text-warning";
+
             const row = document.createElement('tr');
+            row.className = "hover:bg-white/5 transition-colors";
             row.innerHTML = `
-                <td>${req.bookId ? req.bookId.title : 'Deleted Book'}</td>
-                <td>${req.bookId ? req.bookId.author : '-'}</td>
-                <td class="status-${req.status}">${req.status}</td>
-                <td style="font-family: monospace; font-size: 1.1rem; letter-spacing: 2px; color: var(--primary); font-weight: bold;">
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-main font-medium">${req.bookId ? req.bookId.title : 'Deleted Book'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-main">${req.bookId ? req.bookId.author : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm font-bold tracking-[1px] uppercase ${statusColor}">${req.status}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm font-mono tracking-[2px] text-primary font-bold hidden-mobile">
                     ${req.otp || '-'}
                 </td>
-                <td>${req.issueDate ? new Date(req.issueDate).toLocaleDateString() : '-'}</td>
-                <td>${req.dueDate ? new Date(req.dueDate).toLocaleDateString() : '-'}</td>
-                <td>${req.returnDate ? new Date(req.returnDate).toLocaleDateString() : '-'}</td>
-                <td>${req.fineAmount > 0 ? (window.tenantCurrency || '₹') + req.fineAmount : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-muted hidden-mobile">${req.issueDate ? new Date(req.issueDate).toLocaleDateString() : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-muted">${req.dueDate ? new Date(req.dueDate).toLocaleDateString() : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-muted hidden-mobile">${req.returnDate ? new Date(req.returnDate).toLocaleDateString() : '-'}</td>
+                <td class="py-4 px-4 border-b border-border-color text-sm text-text-main">${req.fineAmount > 0 ? (window.tenantCurrency || '₹') + req.fineAmount : '-'}</td>
             `;
             tableBody.appendChild(row);
         });
     } catch (err) {
         console.error(err);
-        tableBody.innerHTML = '<tr><td colspan="8">Error loading requests</td></tr>';
+        tableBody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-danger">Error loading requests</td></tr>';
     }
 }
 

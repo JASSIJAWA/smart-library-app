@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --app-primary: #d4af37;
+    --app-primary-glow: rgba(212, 175, 55, 0.2);
+    --app-secondary: #e8e4db;
+    --app-bg-dark: #0b1320;
+    --app-card-bg: rgba(20, 32, 50, 0.85);
+    --app-card-border: rgba(212, 175, 55, 0.2);
+    --app-nav-bg: rgba(11, 19, 32, 0.95);
+    --app-text-main: #f4f1ea;
+    --app-text-muted: #a6b2c6;
+    --app-success: #38bdf8;
+    --app-danger: #ef4444;
+    --app-warning: #f59e0b;
+  }
+
+  [data-theme="light"] {
+    --app-bg-dark: #fdfbf7;
+    --app-card-bg: #ffffff;
+    --app-card-border: rgba(26, 41, 66, 0.1);
+    --app-nav-bg: rgba(253, 251, 247, 0.95);
+    --app-primary: #1a2942;
+    --app-primary-glow: rgba(26, 41, 66, 0.15);
+    --app-secondary: #d4af37;
+    --app-text-main: #1a2942;
+    --app-text-muted: #64748b;
+    --app-success: #059669;
+    --app-danger: #dc2626;
+    --app-warning: #d97706;
+  }
+}
+
+@theme {
+  --color-primary: var(--app-primary);
+  --color-primary-glow: var(--app-primary-glow);
+  --color-secondary: var(--app-secondary);
+  --color-bg-dark: var(--app-bg-dark);
+  --color-card-bg: var(--app-card-bg);
+  --color-card-border: var(--app-card-border);
+  --color-nav-bg: var(--app-nav-bg);
+  --color-text-main: var(--app-text-main);
+  --color-text-muted: var(--app-text-muted);
+  --color-success: var(--app-success);
+  --color-danger: var(--app-danger);
+  --color-warning: var(--app-warning);
+  --font-sans: 'Inter', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+}
+
+@layer base {
+  body {
+    background-image: radial-gradient(circle at top, #111e33, #0b1320 70%);
+  }
+  
+  [data-theme="light"] body {
+    background-image: radial-gradient(circle at top, #ffffff, #fcfaf5 70%);
+  }
+}
+
+/* Retaining the minimum custom SVG animations required that cannot be pure inline Tailwind classes easily */
+@layer components {
+  /* Hide standard scrollbar across app */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full hover:bg-white/30 transition-colors;
+  }
+
+  /* Password Toggle SVG Eye Animation */
+  .password-toggle .eye-shape {
+    d: path("M 2 12 C 7 18, 17 18, 22 12 C 17 18, 7 18, 2 12 Z");
+    transition: d 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .password-toggle.is-open .eye-shape {
+    d: path("M 2 12 C 7 4, 17 4, 22 12 C 17 20, 7 20, 2 12 Z");
+  }
+  .password-toggle .eye-pupil {
+    opacity: 0;
+    transform: scaleY(0);
+    transform-origin: center;
+    transition: opacity 0.2s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .password-toggle.is-open .eye-pupil {
+    opacity: 1;
+    transform: scaleY(1);
+    transition: opacity 0.4s, transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .password-toggle .lash {
+    stroke-dasharray: 10;
+    stroke-dashoffset: 0;
+    opacity: 1;
+    transition: stroke-dashoffset 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s;
+  }
+  .password-toggle.is-open .lash {
+    stroke-dashoffset: 10;
+    opacity: 0;
+    transition: stroke-dashoffset 0.2s, opacity 0.2s;
+  }
+}
